@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snake Food Battle Server</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #111;
+        color: #f4f4f4;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      main {
+        width: min(680px, calc(100vw - 32px));
+      }
+
+      code {
+        color: #7dd3fc;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Snake Food Battle Backend</h1>
+      <p>The multiplayer server is running. Frontend clients should connect to <code>/ws</code>.</p>
+      <p>Health check: <code>/health</code>. Current state: <code>/state</code>.</p>
+    </main>
+  </body>
+</html>
