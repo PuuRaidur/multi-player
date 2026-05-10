@@ -21,6 +21,7 @@ export class SnakeGame {
     this.totalPausedMs = 0;
     this.endedAt = null;
     this.winner = null;
+    this.events = [];
     this.nextPlayerNumber = 1;
     this.spawnInitialFood();
   }
@@ -132,6 +133,7 @@ export class SnakeGame {
     }
 
     this.addSystemMessage("The match started.");
+    this.emitEvent("sound", { name: "start" });
     return { ok: true };
   }
 
@@ -144,6 +146,7 @@ export class SnakeGame {
     this.phase = PHASES.paused;
     this.pausedAt = this.now();
     this.addSystemMessage(`${player.name} paused the game.`);
+    this.emitEvent("sound", { name: "pause", playerId: player.id, playerName: player.name });
     return true;
   }
 
@@ -157,6 +160,7 @@ export class SnakeGame {
     this.pausedAt = null;
     this.phase = PHASES.playing;
     this.addSystemMessage(`${player.name} resumed the game.`);
+    this.emitEvent("sound", { name: "resume", playerId: player.id, playerName: player.name });
     return true;
   }
 
@@ -171,6 +175,7 @@ export class SnakeGame {
     player.snake = [];
     player.connected = false;
     this.addSystemMessage(`${player.name} quit the game.`);
+    this.emitEvent("sound", { name: "quit", playerId: player.id, playerName: player.name });
     this.finishIfOnlyOneRemaining();
     return true;
   }
@@ -257,6 +262,12 @@ export class SnakeGame {
       const [food] = this.foods.splice(foodIndex, 1);
       player.score += food.type === "bonus" ? this.config.bonusFoodScore : this.config.normalFoodScore;
       this.addSystemMessage(`${player.name} collected ${food.type === "bonus" ? "bonus food" : "food"}.`);
+      this.emitEvent("sound", {
+        name: food.type === "bonus" ? "bonus" : "food",
+        playerId: player.id,
+        playerName: player.name,
+        score: player.score
+      });
       return;
     }
 
@@ -266,11 +277,13 @@ export class SnakeGame {
   applyCollision(player) {
     player.lives -= 1;
     this.addSystemMessage(`${player.name} crashed and lost a life.`);
+    this.emitEvent("sound", { name: "crash", playerId: player.id, playerName: player.name, lives: player.lives });
 
     if (player.lives <= 0) {
       player.out = true;
       player.snake = [];
       this.addSystemMessage(`${player.name} is out.`);
+      this.emitEvent("sound", { name: "out", playerId: player.id, playerName: player.name });
       return;
     }
 
@@ -393,6 +406,11 @@ export class SnakeGame {
     this.endedAt = this.now();
     this.winner = this.pickWinner();
     this.addSystemMessage(`${reason} Winner: ${this.winner ? this.winner.name : "No winner"}.`);
+    this.emitEvent("sound", {
+      name: "end",
+      winnerId: this.winner?.id || null,
+      winnerName: this.winner?.name || null
+    });
   }
 
   pickWinner() {
@@ -415,6 +433,20 @@ export class SnakeGame {
       this.messages.shift();
     }
     return message;
+  }
+
+  emitEvent(type, data = {}) {
+    this.events.push({
+      type,
+      ...data,
+      createdAt: this.now()
+    });
+  }
+
+  drainEvents() {
+    const events = this.events;
+    this.events = [];
+    return events;
   }
 
   assignLeadIfNeeded() {

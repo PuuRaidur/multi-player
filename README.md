@@ -146,6 +146,24 @@ System message:
 { "type": "system", "text": "Mia paused the game.", "createdAt": 1778432400000 }
 ```
 
+Sound cue:
+
+```json
+{ "type": "sound", "name": "food", "playerId": "p_...", "playerName": "Mia" }
+```
+
+Possible sound names:
+
+- `start`
+- `pause`
+- `resume`
+- `quit`
+- `food`
+- `bonus`
+- `crash`
+- `out`
+- `end`
+
 Error:
 
 ```json

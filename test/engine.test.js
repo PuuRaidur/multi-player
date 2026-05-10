@@ -47,6 +47,7 @@ test("food increases score and snake length", () => {
 
   assert.equal(player.score, testConfig.normalFoodScore);
   assert.equal(player.snake.length, testConfig.startingLength + 1);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "food"), true);
 });
 
 test("wall collision costs a life and respawns player", () => {
@@ -66,6 +67,7 @@ test("wall collision costs a life and respawns player", () => {
   assert.equal(player.lives, testConfig.startingLives - 1);
   assert.equal(player.out, false);
   assert.equal(player.snake.length, testConfig.startingLength);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "crash"), true);
 });
 
 test("game ends when timer reaches zero and highest score wins", () => {
@@ -81,4 +83,5 @@ test("game ends when timer reaches zero and highest score wins", () => {
 
   assert.equal(game.phase, "ended");
   assert.equal(game.winner.name, "Berta");
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "end"), true);
 });

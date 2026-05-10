@@ -67,6 +67,7 @@ server.on("upgrade", (request, socket) => {
 
 setInterval(() => {
   game.tick();
+  broadcastGameEvents();
 }, GAME_CONFIG.tickMs);
 
 setInterval(() => {
@@ -122,7 +123,7 @@ function handleClientMessage(clientId, connection, text) {
         connection.sendJson({ type: "error", message: result.error });
         return;
       }
-      broadcast({ type: "sound", name: "start" });
+      broadcastGameEvents();
       broadcast(game.snapshot());
       return;
     }
@@ -133,16 +134,19 @@ function handleClientMessage(clientId, connection, text) {
 
     case "pause":
       game.pause(clientId);
+      broadcastGameEvents();
       broadcast(game.snapshot());
       return;
 
     case "resume":
       game.resume(clientId);
+      broadcastGameEvents();
       broadcast(game.snapshot());
       return;
 
     case "quit":
       game.quit(clientId);
+      broadcastGameEvents();
       broadcast(game.snapshot());
       return;
 
@@ -174,6 +178,12 @@ function handleChat(clientId, rawText) {
 function broadcast(payload) {
   for (const client of clients.values()) {
     client.sendJson(payload);
+  }
+}
+
+function broadcastGameEvents() {
+  for (const event of game.drainEvents()) {
+    broadcast(event);
   }
 }
 
