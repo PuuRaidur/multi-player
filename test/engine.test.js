@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { SnakeGame } from "../src/game/engine.js";
-import { GAME_CONFIG } from "../src/config.js";
+import { SnakeGame } from "../server/game/engine.js";
+import { GAME_CONFIG } from "../server/config.js";
 
 const testConfig = {
   ...GAME_CONFIG,
