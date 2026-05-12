@@ -2,10 +2,10 @@
   "name": "snake-food-battle-server",
   "version": "1.0.0",
   "description": "Backend and real-time multiplayer game logic for Snake Food Battle.",
-  "main": "src/server.js",
+  "main": "server/server.js",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node server/server.js",
     "test": "node --test"
   },
   "engines": {
