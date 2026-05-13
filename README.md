@@ -1,6 +1,6 @@
 # Snake Food Battle - Backend
 
-Real-time multiplayer backend for a DOM-rendered browser game. This part owns player joining, WebSocket networking, match state, scoring, timer, lives, food spawning, collisions, pause/resume/quit messages, and winner selection.
+Real-time multiplayer backend for a DOM-rendered browser game. This part owns player joining, Socket.IO networking, match state, scoring, timer, lives, food spawning, collisions, pause/resume/quit messages, and winner selection.
 
 ## Setup
 
@@ -13,8 +13,6 @@ Install dependencies:
 ```bash
 npm install
 ```
-
-This project currently uses only built-in Node.js modules, so installation is mainly for normal npm workflow.
 
 Run the server:
 
@@ -34,10 +32,10 @@ Health check:
 GET /health
 ```
 
-WebSocket endpoint:
+Socket.IO endpoint:
 
 ```text
-ws://localhost:3100/ws
+http://localhost:3100
 ```
 
 ## Internet Access For Other Players
@@ -56,7 +54,7 @@ or:
 cloudflared tunnel --url http://localhost:3100
 ```
 
-Share the generated HTTPS URL with players. The frontend can convert it to `wss://.../ws` for WebSocket connections.
+Share the generated HTTPS URL with players. The frontend can connect to that URL with the Socket.IO client.
 
 ## Game Rules Implemented
 
@@ -75,72 +73,79 @@ Share the generated HTTPS URL with players. The frontend can convert it to `wss:
 - Winner is the remaining player, or the highest score when time expires.
 - Pause, resume, and quit broadcast a system message naming the player who did it.
 
-## WebSocket Protocol
+## Socket.IO Protocol
 
-All messages are JSON.
+Install the client package in the frontend project:
+
+```bash
+npm install socket.io-client
+```
+
+Connect from the browser:
+
+```js
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3100");
+```
 
 ### Client To Server
 
 Join:
 
-```json
-{ "type": "join", "name": "Mia" }
+```js
+socket.emit("join", { name: "Mia" });
 ```
 
 Ready/unready:
 
-```json
-{ "type": "ready", "ready": true }
+```js
+socket.emit("ready", { ready: true });
 ```
 
 Lead starts match:
 
-```json
-{ "type": "start" }
+```js
+socket.emit("start");
 ```
 
 Move:
 
-```json
-{ "type": "input", "direction": "up" }
+```js
+socket.emit("input", { direction: "up" });
 ```
 
 Menu actions:
 
-```json
-{ "type": "pause" }
-{ "type": "resume" }
-{ "type": "quit" }
+```js
+socket.emit("pause");
+socket.emit("resume");
+socket.emit("quit");
 ```
 
 Chat bonus:
 
-```json
-{ "type": "chat", "text": "Nice dodge!" }
+```js
+socket.emit("chat", { text: "Nice dodge!" });
 ```
 
 ### Server To Client
 
 Welcome:
 
-```json
-{ "type": "welcome", "id": "p_...", "config": { "...": "..." } }
+```js
+socket.on("welcome", ({ id, config }) => {});
 ```
 
 State snapshot:
 
-```json
-{
-  "type": "state",
-  "phase": "playing",
-  "players": [],
-  "foods": [],
-  "timeRemainingMs": 180000,
-  "winner": null
-}
+```js
+socket.on("state", (state) => {
+  // render phase, players, foods, scores, lives, timer, and winner
+});
 ```
 
-System message:
+System messages are included in each `state.messages` array:
 
 ```json
 { "type": "system", "text": "Mia paused the game.", "createdAt": 1778432400000 }
@@ -148,8 +153,8 @@ System message:
 
 Sound cue:
 
-```json
-{ "type": "sound", "name": "food", "playerId": "p_...", "playerName": "Mia" }
+```js
+socket.on("sound", ({ name, playerId, playerName }) => {});
 ```
 
 Possible sound names:
@@ -166,15 +171,15 @@ Possible sound names:
 
 Error:
 
-```json
-{ "type": "error", "message": "Name is already taken." }
+```js
+socket.on("errorMessage", ({ message }) => {});
 ```
 
 ## Frontend Notes
 
 The frontend should render with DOM elements only. Use `requestAnimationFrame` for 60 FPS visual updates and interpolate between server snapshots if desired.
 
-The server sends authoritative snapshots regularly. Frontend movement keys should send `input` messages immediately on keydown and avoid sending repeated identical directions every frame.
+The server sends authoritative snapshots regularly. Frontend movement keys should emit `input` immediately on keydown and avoid sending repeated identical directions every frame.
 
 ## Tests
 

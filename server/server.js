@@ -1,12 +1,11 @@
 import http from "node:http";
+import { Server } from "socket.io";
 import { GAME_CONFIG } from "./config.js";
 import { SnakeGame } from "./game/engine.js";
-import { acceptWebSocket, isWebSocketRequest } from "./net/websocket.js";
 
 const game = new SnakeGame();
-const clients = new Map();
 
-// HTTP is only used for simple status checks; gameplay traffic uses WebSocket.
+// HTTP is only used for simple status checks; gameplay traffic uses Socket.IO.
 const server = http.createServer(async (request, response) => {
   if (request.url === "/health") {
     sendJson(response, 200, { ok: true, phase: game.phase, players: game.players.size });
@@ -21,24 +20,15 @@ const server = http.createServer(async (request, response) => {
   sendJson(response, 404, { error: "Not found" });
 });
 
-// This is where browser clients switch from HTTP to the live game connection.
-server.on("upgrade", (request, socket) => {
-  if (!isWebSocketRequest(request) || new URL(request.url, "http://localhost").pathname !== "/ws") {
-    socket.destroy();
-    return;
+const io = new Server(server, {
+  cors: {
+    origin: "*"
   }
+});
 
-  const connection = acceptWebSocket(request, socket);
-  if (!connection) {
-    return;
-  }
-
-  const id = `p_${Date.now().toString(36)}_${Math.random().toString(16).slice(2)}`;
-  clients.set(id, connection);
-
-  connection.sendJson({
-    type: "welcome",
-    id,
+io.on("connection", (socket) => {
+  socket.emit("welcome", {
+    id: socket.id,
     config: {
       minPlayers: GAME_CONFIG.minPlayers,
       maxPlayers: GAME_CONFIG.maxPlayers,
@@ -47,18 +37,61 @@ server.on("upgrade", (request, socket) => {
       roundDurationMs: GAME_CONFIG.roundDurationMs
     }
   });
-  connection.sendJson(game.snapshot());
+  socket.emit("state", game.snapshot());
 
-  connection.on("message", (text) => handleClientMessage(id, connection, text));
-  connection.on("close", () => {
-    clients.delete(id);
-    game.removePlayer(id);
-    broadcast(game.snapshot());
+  socket.on("join", (payload) => {
+    const result = game.addPlayer(socket.id, payload?.name);
+    if (!result.ok) {
+      socket.emit("errorMessage", { message: result.error });
+      return;
+    }
+    broadcastState();
   });
-  connection.on("error", () => {
-    clients.delete(id);
-    game.removePlayer(id);
-    broadcast(game.snapshot());
+
+  socket.on("ready", (payload) => {
+    game.setReady(socket.id, payload?.ready);
+    broadcastState();
+  });
+
+  socket.on("start", () => {
+    const result = game.start(socket.id);
+    if (!result.ok) {
+      socket.emit("errorMessage", { message: result.error });
+      return;
+    }
+    broadcastGameEvents();
+    broadcastState();
+  });
+
+  socket.on("input", (payload) => {
+    game.setDirection(socket.id, payload?.direction);
+  });
+
+  socket.on("pause", () => {
+    game.pause(socket.id);
+    broadcastGameEvents();
+    broadcastState();
+  });
+
+  socket.on("resume", () => {
+    game.resume(socket.id);
+    broadcastGameEvents();
+    broadcastState();
+  });
+
+  socket.on("quit", () => {
+    game.quit(socket.id);
+    broadcastGameEvents();
+    broadcastState();
+  });
+
+  socket.on("chat", (payload) => {
+    handleChat(socket.id, payload?.text);
+  });
+
+  socket.on("disconnect", () => {
+    game.removePlayer(socket.id);
+    broadcastState();
   });
 });
 
@@ -70,94 +103,12 @@ setInterval(() => {
 
 // Frequent snapshots keep scores, lives, timer, and positions synced for all players.
 setInterval(() => {
-  broadcast(game.snapshot());
+  broadcastState();
 }, GAME_CONFIG.broadcastMs);
-
-// Ping/pong checks help detect browsers that closed without sending a normal disconnect.
-setInterval(() => {
-  for (const [id, client] of clients.entries()) {
-    if (!client.alive) {
-      client.close();
-      clients.delete(id);
-      game.removePlayer(id);
-      continue;
-    }
-
-    client.alive = false;
-    client.ping();
-  }
-}, 30_000);
 
 server.listen(GAME_CONFIG.port, GAME_CONFIG.host, () => {
   console.log(`Snake Food Battle server running at http://${GAME_CONFIG.host}:${GAME_CONFIG.port}`);
 });
-
-function handleClientMessage(clientId, connection, text) {
-  let message;
-  try {
-    message = JSON.parse(text);
-  } catch {
-    connection.sendJson({ type: "error", message: "Invalid JSON." });
-    return;
-  }
-
-  switch (message.type) {
-    case "join": {
-      const result = game.addPlayer(clientId, message.name);
-      if (!result.ok) {
-        connection.sendJson({ type: "error", message: result.error });
-        return;
-      }
-      broadcast(game.snapshot());
-      return;
-    }
-
-    case "ready":
-      game.setReady(clientId, message.ready);
-      broadcast(game.snapshot());
-      return;
-
-    case "start": {
-      const result = game.start(clientId);
-      if (!result.ok) {
-        connection.sendJson({ type: "error", message: result.error });
-        return;
-      }
-      broadcastGameEvents();
-      broadcast(game.snapshot());
-      return;
-    }
-
-    case "input":
-      game.setDirection(clientId, message.direction);
-      return;
-
-    case "pause":
-      game.pause(clientId);
-      broadcastGameEvents();
-      broadcast(game.snapshot());
-      return;
-
-    case "resume":
-      game.resume(clientId);
-      broadcastGameEvents();
-      broadcast(game.snapshot());
-      return;
-
-    case "quit":
-      game.quit(clientId);
-      broadcastGameEvents();
-      broadcast(game.snapshot());
-      return;
-
-    case "chat":
-      handleChat(clientId, message.text);
-      return;
-
-    default:
-      connection.sendJson({ type: "error", message: "Unknown message type." });
-  }
-}
 
 function handleChat(clientId, rawText) {
   const player = game.players.get(clientId);
@@ -166,8 +117,7 @@ function handleChat(clientId, rawText) {
     return;
   }
 
-  broadcast({
-    type: "chat",
+  io.emit("chat", {
     playerId: player.id,
     name: player.name,
     text,
@@ -175,16 +125,14 @@ function handleChat(clientId, rawText) {
   });
 }
 
-function broadcast(payload) {
-  for (const client of clients.values()) {
-    client.sendJson(payload);
-  }
+function broadcastState() {
+  io.emit("state", game.snapshot());
 }
 
 // One-time events, such as sound cues, are separate from recurring state snapshots.
 function broadcastGameEvents() {
   for (const event of game.drainEvents()) {
-    broadcast(event);
+    io.emit(event.type, event);
   }
 }
 

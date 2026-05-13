@@ -6,7 +6,7 @@
 1. **Backend Server**
    - Node.js server setup
    - HTTP health/state endpoints
-   - WebSocket endpoint for real-time gameplay
+   - Socket.IO connection for real-time gameplay
 
 2. **Multiplayer Session Logic**
    - Player joining
@@ -83,7 +83,7 @@
 ## Coordination Points
 
 Both developers will collaborate on:
-- WebSocket connection handling
+- Socket.IO connection handling
 - Shared state management
 - RequestAnimationFrame integration
 - Performance optimization
