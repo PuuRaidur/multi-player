@@ -204,6 +204,7 @@ export class SnakeGame {
       return;
     }
 
+    // All next positions are collected before collision checks so players are judged from the same moment.
     const intendedMoves = new Map();
     for (const player of this.players.values()) {
       if (player.out || player.snake.length === 0) {
@@ -240,6 +241,7 @@ export class SnakeGame {
       }
     }
 
+    // Moves are applied only after the collision pass, keeping simultaneous movement fair.
     for (const [playerId, target] of intendedMoves.entries()) {
       const player = this.players.get(playerId);
       if (collisions.has(playerId)) {
@@ -290,6 +292,7 @@ export class SnakeGame {
     this.respawnPlayer(player, false);
   }
 
+  // Respawn creates a full-length snake in open space and gives brief protection.
   respawnPlayer(player, initialSpawn) {
     const spawn = this.findSpawnPoint();
     const direction = spawn.direction;
@@ -463,6 +466,7 @@ export class SnakeGame {
   }
 
   snapshot() {
+    // The frontend renders from this authoritative state snapshot.
     return {
       type: "state",
       phase: this.phase,

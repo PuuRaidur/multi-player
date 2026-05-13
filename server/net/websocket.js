@@ -14,6 +14,7 @@ export function acceptWebSocket(request, socket) {
     return null;
   }
 
+  // The handshake is small enough to handle with built-in Node.js modules.
   const accept = crypto.createHash("sha1").update(`${key}${WS_GUID}`).digest("base64");
   socket.write(
     [
@@ -72,6 +73,7 @@ export class WebSocketConnection extends EventEmitter {
   handleData(chunk) {
     this.buffer = Buffer.concat([this.buffer, chunk]);
 
+    // A TCP chunk can contain part of a frame or several frames, so buffered parsing is needed.
     while (this.buffer.length >= 2) {
       const frame = readFrame(this.buffer);
       if (!frame) {
@@ -111,6 +113,7 @@ function readFrame(buffer) {
   let length = second & 0x7f;
   let offset = 2;
 
+  // Browser-to-server frames include a mask, as required by the WebSocket protocol.
   if (length === 126) {
     if (buffer.length < offset + 2) return null;
     length = buffer.readUInt16BE(offset);
@@ -149,6 +152,7 @@ function readFrame(buffer) {
 }
 
 function createFrameHeader(length, opcode) {
+  // Server-to-browser frames are unmasked; the header only varies by payload length.
   if (length < 126) {
     return Buffer.from([0x80 | opcode, length]);
   }

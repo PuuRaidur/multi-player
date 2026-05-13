@@ -6,6 +6,7 @@ import { acceptWebSocket, isWebSocketRequest } from "./net/websocket.js";
 const game = new SnakeGame();
 const clients = new Map();
 
+// HTTP is only used for simple status checks; gameplay traffic uses WebSocket.
 const server = http.createServer(async (request, response) => {
   if (request.url === "/health") {
     sendJson(response, 200, { ok: true, phase: game.phase, players: game.players.size });
@@ -20,6 +21,7 @@ const server = http.createServer(async (request, response) => {
   sendJson(response, 404, { error: "Not found" });
 });
 
+// This is where browser clients switch from HTTP to the live game connection.
 server.on("upgrade", (request, socket) => {
   if (!isWebSocketRequest(request) || new URL(request.url, "http://localhost").pathname !== "/ws") {
     socket.destroy();
@@ -60,15 +62,18 @@ server.on("upgrade", (request, socket) => {
   });
 });
 
+// The server updates game rules at a fixed rate, while the client handles smooth rendering.
 setInterval(() => {
   game.tick();
   broadcastGameEvents();
 }, GAME_CONFIG.tickMs);
 
+// Frequent snapshots keep scores, lives, timer, and positions synced for all players.
 setInterval(() => {
   broadcast(game.snapshot());
 }, GAME_CONFIG.broadcastMs);
 
+// Ping/pong checks help detect browsers that closed without sending a normal disconnect.
 setInterval(() => {
   for (const [id, client] of clients.entries()) {
     if (!client.alive) {
@@ -176,6 +181,7 @@ function broadcast(payload) {
   }
 }
 
+// One-time events, such as sound cues, are separate from recurring state snapshots.
 function broadcastGameEvents() {
   for (const event of game.drainEvents()) {
     broadcast(event);
