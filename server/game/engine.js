@@ -137,6 +137,38 @@ export class SnakeGame {
     return { ok: true };
   }
 
+  newRound(clientId) {
+    if (this.phase !== PHASES.ended) {
+      return { ok: false, error: "Match has not ended yet." };
+    }
+
+    if (clientId !== this.leadPlayerId) {
+      return { ok: false, error: "Only the lead player can prepare a new round." };
+    }
+
+    this.phase = PHASES.lobby;
+    this.startedAt = null;
+    this.pausedAt = null;
+    this.totalPausedMs = 0;
+    this.endedAt = null;
+    this.winner = null;
+    this.foods = [];
+    this.spawnInitialFood();
+
+    for (const player of this.players.values()) {
+      player.ready = false;
+      player.connected = true;
+      player.score = 0;
+      player.lives = this.config.startingLives;
+      player.out = false;
+      player.invulnerableUntil = 0;
+      this.respawnPlayer(player, true);
+    }
+
+    this.addSystemMessage("A new round is ready.");
+    return { ok: true };
+  }
+
   pause(clientId) {
     const player = this.players.get(clientId);
     if (!player || this.phase !== PHASES.playing) {
@@ -182,7 +214,7 @@ export class SnakeGame {
 
   setDirection(clientId, direction) {
     const player = this.players.get(clientId);
-    if (!player || player.out || !DIRECTIONS[direction]) {
+    if (this.phase !== PHASES.playing || !player || player.out || !DIRECTIONS[direction]) {
       return false;
     }
 
@@ -384,7 +416,7 @@ export class SnakeGame {
       return this.config.roundDurationMs;
     }
 
-    const now = this.phase === PHASES.paused ? this.pausedAt : this.now();
+    const now = this.phase === PHASES.paused ? this.pausedAt : this.endedAt || this.now();
     const elapsed = now - this.startedAt - this.totalPausedMs;
     return Math.max(0, this.config.roundDurationMs - elapsed);
   }

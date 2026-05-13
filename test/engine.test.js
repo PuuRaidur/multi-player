@@ -85,3 +85,42 @@ test("game ends when timer reaches zero and highest score wins", () => {
   assert.equal(game.winner.name, "Berta");
   assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "end"), true);
 });
+
+test("lead player can prepare a new round after the game ends", () => {
+  let now = 1000;
+  const game = new SnakeGame(testConfig, () => now);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  game.players.get("b").score = 30;
+  now += testConfig.roundDurationMs + 1;
+  game.tick();
+
+  const result = game.newRound("a");
+
+  assert.equal(result.ok, true);
+  assert.equal(game.phase, "lobby");
+  assert.equal(game.winner, null);
+  assert.equal(game.players.get("a").score, 0);
+  assert.equal(game.players.get("a").lives, testConfig.startingLives);
+  assert.equal(game.players.get("a").ready, false);
+});
+
+test("timer freezes when the game ends early", () => {
+  let now = 1000;
+  const game = new SnakeGame(testConfig, () => now);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  now += 200;
+  game.players.get("b").out = true;
+  game.finishIfOnlyOneRemaining();
+  const remainingAtEnd = game.getTimeRemainingMs();
+
+  now += 500;
+
+  assert.equal(game.phase, "ended");
+  assert.equal(game.getTimeRemainingMs(), remainingAtEnd);
+});

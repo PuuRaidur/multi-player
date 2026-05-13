@@ -63,6 +63,15 @@ io.on("connection", (socket) => {
     broadcastState();
   });
 
+  socket.on("newRound", () => {
+    const result = game.newRound(socket.id);
+    if (!result.ok) {
+      socket.emit("errorMessage", { message: result.error });
+      return;
+    }
+    broadcastState();
+  });
+
   socket.on("input", (payload) => {
     game.setDirection(socket.id, payload?.direction);
   });
