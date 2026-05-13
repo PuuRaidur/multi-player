@@ -1,13 +1,8 @@
 import http from "node:http";
-import { readFile } from "node:fs/promises";
-import { extname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import { GAME_CONFIG } from "./config.js";
 import { SnakeGame } from "./game/engine.js";
 import { acceptWebSocket, isWebSocketRequest } from "./net/websocket.js";
 
-const root = join(fileURLToPath(new URL(".", import.meta.url)), "..");
-const publicDir = join(root, "public");
 const game = new SnakeGame();
 const clients = new Map();
 
@@ -22,7 +17,7 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  await serveStatic(request, response);
+  sendJson(response, 404, { error: "Not found" });
 });
 
 server.on("upgrade", (request, socket) => {
@@ -190,34 +185,4 @@ function broadcastGameEvents() {
 function sendJson(response, status, data) {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(data));
-}
-
-async function serveStatic(request, response) {
-  const url = new URL(request.url, "http://localhost");
-  const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
-  const safePath = pathname.replace(/^\/+/, "").replaceAll("..", "");
-  const filePath = join(publicDir, safePath);
-
-  try {
-    const body = await readFile(filePath);
-    response.writeHead(200, { "content-type": contentType(filePath) });
-    response.end(body);
-  } catch {
-    sendJson(response, 404, { error: "Not found" });
-  }
-}
-
-function contentType(filePath) {
-  switch (extname(filePath)) {
-    case ".html":
-      return "text/html; charset=utf-8";
-    case ".css":
-      return "text/css; charset=utf-8";
-    case ".js":
-      return "text/javascript; charset=utf-8";
-    case ".json":
-      return "application/json; charset=utf-8";
-    default:
-      return "text/plain; charset=utf-8";
-  }
 }
