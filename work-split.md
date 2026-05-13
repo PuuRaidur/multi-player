@@ -1,4 +1,38 @@
-# Frontend Work Division
+# Work Division
+
+## Magdaleena: Backend + Multiplayer + Game Logic
+
+### Responsibilities
+1. **Backend Server**
+   - Node.js server setup
+   - HTTP health/state endpoints
+   - WebSocket endpoint for real-time gameplay
+
+2. **Multiplayer Session Logic**
+   - Player joining
+   - Unique player names
+   - Lead player start flow
+   - Support for 2-4 players
+
+3. **Server-Side Game Logic**
+   - Snake movement rules
+   - Food and bonus food scoring
+   - Lives, respawn, and elimination
+   - Collision detection
+   - 3-minute game timer
+   - Winner selection
+
+4. **Backend Events and Tests**
+   - Pause, resume, and quit broadcast messages
+   - Sound cue events for frontend playback
+   - Backend game logic tests
+
+### Main Files
+- `server/server.js`
+- `server/config.js`
+- `server/game/engine.js`
+- `server/net/websocket.js`
+- `test/engine.test.js`
 
 ## Developer 1: Core Game Systems
 
