@@ -1,3 +1,33 @@
 .app {
   padding: 1rem;
 }
+
+.button {
+  padding: 8px 16px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background-color: #000000;
+}
+
+.button-green {
+  background-color: #28a745;
+}
+
+.button-red {
+  background-color: #dc3545;
+}
+
+.button-yellow {
+  background-color: #ffc107;
+  color: #212529;
+}
