@@ -58,7 +58,9 @@ export class SnakeGame {
       direction: "right",
       queuedDirection: "right",
       snake: [],
-      invulnerableUntil: 0
+      invulnerableUntil: 0,
+      speedBoostUntil: 0,
+      moveProgress: 0
     };
 
     if (this.leadPlayerId === null) {
@@ -131,6 +133,8 @@ export class SnakeGame {
       player.lives = this.config.startingLives;
       player.out = false;
       player.invulnerableUntil = 0;
+      player.speedBoostUntil = 0;
+      player.moveProgress = 0;
       this.respawnPlayer(player, true);
     }
 
@@ -164,6 +168,8 @@ export class SnakeGame {
       player.lives = this.config.startingLives;
       player.out = false;
       player.invulnerableUntil = 0;
+      player.speedBoostUntil = 0;
+      player.moveProgress = 0;
       this.respawnPlayer(player, true);
     }
 
@@ -238,10 +244,25 @@ export class SnakeGame {
       return;
     }
 
+    for (const player of this.players.values()) {
+      if (!player.out && player.snake.length > 0) {
+        player.moveProgress += this.getPlayerSpeedMultiplier(player);
+      }
+    }
+
+    while ([...this.players.values()].some((player) => !player.out && player.moveProgress >= 1)) {
+      this.moveReadyPlayers();
+    }
+
+    this.ensureFoodCounts();
+    this.finishIfOnlyOneRemaining();
+  }
+
+  moveReadyPlayers() {
     // All next positions are collected before collision checks so players are judged from the same moment.
     const intendedMoves = new Map();
     for (const player of this.players.values()) {
-      if (player.out || player.snake.length === 0) {
+      if (player.out || player.snake.length === 0 || player.moveProgress < 1) {
         continue;
       }
 
@@ -278,6 +299,7 @@ export class SnakeGame {
     // Moves are applied only after the collision pass, keeping simultaneous movement fair.
     for (const [playerId, target] of intendedMoves.entries()) {
       const player = this.players.get(playerId);
+      player.moveProgress -= 1;
       if (collisions.has(playerId)) {
         this.applyCollision(player);
         continue;
@@ -285,9 +307,6 @@ export class SnakeGame {
 
       this.movePlayer(player, target);
     }
-
-    this.ensureFoodCounts();
-    this.finishIfOnlyOneRemaining();
   }
 
   movePlayer(player, target) {
@@ -296,18 +315,40 @@ export class SnakeGame {
     const foodIndex = this.foods.findIndex((food) => food.x === target.x && food.y === target.y);
     if (foodIndex >= 0) {
       const [food] = this.foods.splice(foodIndex, 1);
-      player.score += food.type === "bonus" ? this.config.bonusFoodScore : this.config.normalFoodScore;
-      this.addSystemMessage(`${player.name} collected ${food.type === "bonus" ? "bonus food" : "food"}.`);
+      const collected = this.applyFoodEffect(player, food);
+      this.addSystemMessage(`${player.name} collected ${collected.label}.`);
       this.emitEvent("sound", {
-        name: food.type === "bonus" ? "bonus" : "food",
+        name: collected.sound,
         playerId: player.id,
         playerName: player.name,
-        score: player.score
+        score: player.score,
+        lives: player.lives
       });
       return;
     }
 
     player.snake.pop();
+  }
+
+  applyFoodEffect(player, food) {
+    if (food.type === "bonus") {
+      player.score += this.config.bonusFoodScore;
+      return { label: "bonus food", sound: "bonus" };
+    }
+
+    if (food.type === "speedBoost") {
+      player.speedBoostUntil = this.now() + this.config.speedBoostDurationMs;
+      player.moveProgress = Math.min(player.moveProgress, 1);
+      return { label: "a speed boost power-up", sound: "speedBoost" };
+    }
+
+    if (food.type === "extraLife") {
+      player.lives = Math.min(this.config.maxLives, player.lives + 1);
+      return { label: "an extra life power-up", sound: "extraLife" };
+    }
+
+    player.score += this.config.normalFoodScore;
+    return { label: "food", sound: "food" };
   }
 
   applyCollision(player) {
@@ -341,6 +382,7 @@ export class SnakeGame {
     player.direction = direction;
     player.queuedDirection = direction;
     player.invulnerableUntil = initialSpawn ? 0 : this.now() + this.config.respawnInvulnerableMs;
+    player.moveProgress = 0;
   }
 
   findSpawnPoint() {
@@ -369,6 +411,8 @@ export class SnakeGame {
   ensureFoodCounts() {
     const normalCount = this.foods.filter((food) => food.type === "normal").length;
     const bonusCount = this.foods.filter((food) => food.type === "bonus").length;
+    const extraLifeCount = this.foods.filter((food) => food.type === "extraLife").length;
+    const speedBoostCount = this.foods.filter((food) => food.type === "speedBoost").length;
 
     for (let i = normalCount; i < this.config.normalFoodCount; i += 1) {
       this.spawnFood("normal");
@@ -379,6 +423,18 @@ export class SnakeGame {
         this.spawnFood("bonus");
       }
     }
+
+    for (let i = extraLifeCount; i < this.config.extraLifePowerUpCount; i += 1) {
+      this.spawnFood("extraLife");
+    }
+
+    for (let i = speedBoostCount; i < this.config.speedBoostPowerUpCount; i += 1) {
+      this.spawnFood("speedBoost");
+    }
+  }
+
+  getPlayerSpeedMultiplier(player) {
+    return this.now() < player.speedBoostUntil ? this.config.speedBoostMultiplier : 1;
   }
 
   spawnFood(type) {
@@ -545,6 +601,8 @@ export class SnakeGame {
         out: player.out,
         direction: player.direction,
         invulnerable: this.now() < player.invulnerableUntil,
+        speedBoostActive: this.now() < player.speedBoostUntil,
+        speedBoostRemainingMs: Math.max(0, player.speedBoostUntil - this.now()),
         snake: player.snake
       })),
       foods: this.foods,

@@ -66,6 +66,8 @@ Share the generated HTTPS URL with players. The frontend can connect to that URL
 - Match duration is 180 seconds.
 - Food gives 10 points.
 - Bonus food gives 25 points.
+- Extra life power-up gives +1 life up to the maximum lives limit.
+- Speed boost power-up makes the snake move 1.5x faster for 10 seconds.
 - Collision with a wall, own body, or another snake costs 1 life.
 - A player with lives remaining respawns.
 - A player with 0 lives is out.
@@ -165,6 +167,8 @@ Possible sound names:
 - `quit`
 - `food`
 - `bonus`
+- `extraLife`
+- `speedBoost`
 - `crash`
 - `out`
 - `end`

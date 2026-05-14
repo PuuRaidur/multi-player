@@ -6,16 +6,21 @@ export const GAME_CONFIG = Object.freeze({
   gridWidth: 32,
   gridHeight: 24,
   startingLives: 3,
+  maxLives: 5,
   startingLength: 4,
   roundDurationMs: 180_000,
   tickMs: 100,
   broadcastMs: 50,
   respawnInvulnerableMs: 1500,
+  speedBoostDurationMs: 10_000,
+  speedBoostMultiplier: 1.5,
   normalFoodScore: 10,
   bonusFoodScore: 25,
   normalFoodCount: 5,
   bonusFoodCount: 1,
-  bonusFoodChance: 0.18
+  bonusFoodChance: 0.18,
+  extraLifePowerUpCount: 1,
+  speedBoostPowerUpCount: 1
 });
 
 export const DIRECTIONS = Object.freeze({

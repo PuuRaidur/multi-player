@@ -9,7 +9,9 @@ const testConfig = {
   gridHeight: 12,
   roundDurationMs: 1000,
   normalFoodCount: 0,
-  bonusFoodCount: 0
+  bonusFoodCount: 0,
+  extraLifePowerUpCount: 0,
+  speedBoostPowerUpCount: 0
 };
 
 test("requires unique player names", () => {
@@ -48,6 +50,70 @@ test("food increases score and snake length", () => {
   assert.equal(player.score, testConfig.normalFoodScore);
   assert.equal(player.snake.length, testConfig.startingLength + 1);
   assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "food"), true);
+});
+
+test("extra life power-up increases lives without passing max lives", () => {
+  let now = 1000;
+  const game = new SnakeGame(testConfig, () => now);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const player = game.players.get("a");
+  player.lives = testConfig.maxLives - 1;
+  const head = player.snake[0];
+  game.foods = [{ id: "life1", type: "extraLife", x: head.x + 1, y: head.y }];
+
+  game.tick();
+
+  assert.equal(player.lives, testConfig.maxLives);
+  assert.equal(player.score, 0);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "extraLife"), true);
+
+  const newHead = player.snake[0];
+  game.foods = [{ id: "life2", type: "extraLife", x: newHead.x + 1, y: newHead.y }];
+  game.tick();
+
+  assert.equal(player.lives, testConfig.maxLives);
+});
+
+test("speed boost power-up makes player faster for ten seconds", () => {
+  let now = 1000;
+  const game = new SnakeGame(testConfig, () => now);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const player = game.players.get("a");
+  const head = player.snake[0];
+  game.foods = [{ id: "speed1", type: "speedBoost", x: head.x + 1, y: head.y }];
+
+  game.tick();
+
+  assert.equal(player.speedBoostUntil, now + testConfig.speedBoostDurationMs);
+  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").speedBoostActive, true);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "speedBoost"), true);
+
+  now += testConfig.speedBoostDurationMs + 1;
+
+  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").speedBoostActive, false);
+});
+
+test("boosted player moves three cells over two ticks", () => {
+  let now = 1000;
+  const game = new SnakeGame(testConfig, () => now);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const player = game.players.get("a");
+  player.speedBoostUntil = now + testConfig.speedBoostDurationMs;
+  const startingX = player.snake[0].x;
+
+  game.tick();
+  game.tick();
+
+  assert.equal(player.snake[0].x, startingX + 3);
 });
 
 test("wall collision costs a life and respawns player", () => {
