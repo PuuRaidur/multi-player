@@ -288,6 +288,11 @@ export class SnakeGame {
       const player = this.players.get(playerId);
       const targetKey = cellKey(target);
       const hitWall = target.x < 0 || target.x >= this.config.gridWidth || target.y < 0 || target.y >= this.config.gridHeight;
+      const tailBite = this.findTailBite(playerId, target);
+      if (tailBite) {
+        continue;
+      }
+
       const hitBody = occupied.has(targetKey);
       const headOn = targetCounts.get(targetKey) > 1;
 
@@ -312,6 +317,13 @@ export class SnakeGame {
   movePlayer(player, target) {
     player.snake.unshift(target);
 
+    const tailBite = this.findTailBite(player.id, target);
+    if (tailBite) {
+      this.applyTailBite(player, tailBite);
+      player.snake.pop();
+      return;
+    }
+
     const foodIndex = this.foods.findIndex((food) => food.x === target.x && food.y === target.y);
     if (foodIndex >= 0) {
       const [food] = this.foods.splice(foodIndex, 1);
@@ -328,6 +340,39 @@ export class SnakeGame {
     }
 
     player.snake.pop();
+  }
+
+  findTailBite(attackerId, target) {
+    if (this.config.gameMode !== "tailHunt") {
+      return null;
+    }
+
+    for (const defender of this.players.values()) {
+      if (defender.id === attackerId || defender.out || defender.snake.length < this.config.minimumTailBiteLength) {
+        continue;
+      }
+
+      const tail = defender.snake.at(-1);
+      if (tail.x === target.x && tail.y === target.y) {
+        return { defender, tail };
+      }
+    }
+
+    return null;
+  }
+
+  applyTailBite(attacker, tailBite) {
+    tailBite.defender.snake.pop();
+    attacker.score += this.config.tailBiteScore;
+    this.addSystemMessage(`${attacker.name} bit ${tailBite.defender.name}'s tail.`);
+    this.emitEvent("sound", {
+      name: "tailBite",
+      playerId: attacker.id,
+      playerName: attacker.name,
+      targetPlayerId: tailBite.defender.id,
+      targetPlayerName: tailBite.defender.name,
+      score: attacker.score
+    });
   }
 
   applyFoodEffect(player, food) {
@@ -580,6 +625,7 @@ export class SnakeGame {
     return {
       type: "state",
       phase: this.phase,
+      gameMode: this.config.gameMode,
       grid: {
         width: this.config.gridWidth,
         height: this.config.gridHeight

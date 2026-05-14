@@ -116,6 +116,48 @@ test("boosted player moves three cells over two ticks", () => {
   assert.equal(player.snake[0].x, startingX + 3);
 });
 
+test("tail hunt mode rewards biting another snake tail", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const attacker = game.players.get("a");
+  const defender = game.players.get("b");
+  attacker.snake = [{ x: 2, y: 2 }, { x: 1, y: 2 }, { x: 0, y: 2 }];
+  attacker.direction = "right";
+  attacker.queuedDirection = "right";
+  defender.snake = [{ x: 6, y: 2 }, { x: 5, y: 2 }, { x: 4, y: 2 }, { x: 3, y: 2 }];
+
+  game.tick();
+
+  assert.equal(attacker.score, testConfig.tailBiteScore);
+  assert.equal(defender.snake.length, 3);
+  assert.equal(attacker.lives, testConfig.startingLives);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "tailBite"), true);
+});
+
+test("classic mode treats tail cells as normal collision", () => {
+  const classicConfig = { ...testConfig, gameMode: "classic" };
+  const game = new SnakeGame(classicConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const attacker = game.players.get("a");
+  const defender = game.players.get("b");
+  attacker.snake = [{ x: 2, y: 2 }];
+  attacker.direction = "right";
+  attacker.queuedDirection = "right";
+  defender.snake = [{ x: 6, y: 2 }, { x: 5, y: 2 }, { x: 4, y: 2 }, { x: 3, y: 2 }];
+
+  game.tick();
+
+  assert.equal(attacker.score, 0);
+  assert.equal(attacker.lives, classicConfig.startingLives - 1);
+  assert.equal(defender.snake.length, 4);
+});
+
 test("wall collision costs a life and respawns player", () => {
   let now = 1000;
   const game = new SnakeGame(testConfig, () => now);

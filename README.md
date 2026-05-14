@@ -74,6 +74,7 @@ Share the generated HTTPS URL with players. The frontend can connect to that URL
 - The match ends when the timer reaches 0 or only one player remains alive.
 - Winner is the remaining player, or the highest score when time expires.
 - Pause, resume, and quit broadcast a system message naming the player who did it.
+- Tail Hunt mode is enabled by default: biting another player's tail gives 20 points and removes one tail segment.
 
 ## Socket.IO Protocol
 
@@ -169,6 +170,7 @@ Possible sound names:
 - `bonus`
 - `extraLife`
 - `speedBoost`
+- `tailBite`
 - `crash`
 - `out`
 - `end`
