@@ -34,7 +34,7 @@
 - `server/net/websocket.js`
 - `test/engine.test.js`
 
-## Developer 1: Core Game Systems
+## Vladyslav: Core Game Systems
 
 ### Responsibilities
 1. **Game Board Rendering**
@@ -56,7 +56,7 @@
    - End-game display showing winner
    - Final score summary screen
 
-## Developer 2: User Interface & Features
+## Georg: User Interface & Features
 
 ### Responsibilities
 1. **Join/Lobby Screen**
