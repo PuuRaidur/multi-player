@@ -1,20 +1,4 @@
-/**
- * Food.jsx
- *
- * Renders a single food item with spawn and eat animations.
- *
- * Props:
- *   food       {id, x, y, type?}  The food to render. Stable `id` is required for animation.
- *   cellSize   number             Pixels per grid cell (must match Board)
- *   isEating   boolean            Triggers the eat animation
- *
- * Food types (optional `type` field):
- *   "normal"  — classic glowing orb (default)
- *   "bonus"   — larger, golden, pulsing ring
- *   "speed"   — cyan teardrop
- */
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 // ---------------------------------------------------------------------------
 // Per-food color palette keyed by type
@@ -43,7 +27,11 @@ const TYPE_STYLES = {
   },
 };
 
-/** Pick a stable color from the palette using the food id. */
+/**
+ * Pick a stable color from the palette using the food id.
+ * @param {Food} food food
+ * @returns {string} CSS color string
+ */
 function colorForFood(food) {
   const palette = (TYPE_STYLES[food.type] ?? TYPE_STYLES.normal).colors;
   // Hash the id string to an index
@@ -52,6 +40,30 @@ function colorForFood(food) {
   return palette[Math.abs(hash) % palette.length];
 }
 
+/**
+ * @typedef {"normal"|"bonus"|"speed"|"life"} FoodType
+ */
+
+/**
+ * @typedef {Object} Food
+ * @property {number}    id   Stable `id` is required for animation
+ * @property {number}    x    X-coordinate on the board grid
+ * @property {number}    y    Y-coordinate on the board grid
+ * @property {FoodType?} type Food type
+ */
+
+/**
+ * @typedef {Object} FoodProps
+ * @property {Food}    food      The food to render. 
+ * @property {number}  cellSize  Pixels per grid cell
+ * @property {boolean} isEating  Triggers the eat animation
+ */
+
+/**
+ * Renders single food item.
+ * @param {FoodProps} props Food props
+ * @returns 
+ */
 export default function Food({ food, cellSize = 32, isEating = false }) {
   const [phase, setPhase] = useState("spawning");
   useEffect(() => {
