@@ -1,24 +1,25 @@
+import React, { useEffect, useState, ReactNode } from "react";
+
 /**
- * Snake.jsx
- *
- * Renders a single snake on the board.
- *
- * Props:
- *   segments    {x, y}[]  Grid-coordinate positions, head first. Updated each server tick.
- *   color       string    CSS color string for this snake (e.g. "#00ff88", "hsl(140 100% 55%)")
- *   cellSize    number    Pixels per grid cell (must match Board)
- *   name        string    Player label shown above the head
- *   transitionMs number   Should equal your server tick interval (ms) for butter-smooth motion
- *   alive       boolean   When false the snake fades out with a death shake
+ * Direction of moving.
+ * @typedef {"up"|"down"|"left"|"right"} Direction
  */
 
-import React, { useRef, useEffect, useState } from "react";
+/**
+ * X and Y coordinates.
+ * @typedef {x: number, y: number} Position
+ */
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Determine which way the head is facing based on the first two segments. */
+/**
+ * Determine which way the head is facing based on the first two segments.
+ * @param {Position} head leading segment of the snake
+ * @param {Position} neck second segment of the snake
+ * @returns {Direction} direction it's facing
+ */
 function headDirection(head, neck) {
   if (!neck) return "right";
   const dx = head.x - neck.x;
@@ -28,7 +29,12 @@ function headDirection(head, neck) {
   return dy >= 0 ? "down" : "up";
 }
 
-/** Determine which way the tail is facing based on the last two segments. */
+/**
+ * Determine which way the tail is facing based on the last two segments.
+ * @param {Position} tail last segment of the snake
+ * @param {Position} ass  second to last segment of the snake
+ * @returns {Direction} direction it's facing
+ */
 function tailDirection(tail, ass) {
   return headDirection(ass, tail)
 }
@@ -36,12 +42,18 @@ function tailDirection(tail, ass) {
 /** Eye positions (as fraction of cellSize) for each heading. */
 const EYE_POSITIONS = {
   right: [{ x: 0.58, y: 0.22 }, { x: 0.58, y: 0.60 }],
-  left:  [{ x: 0.22, y: 0.22 }, { x: 0.22, y: 0.60 }],
-  up:    [{ x: 0.22, y: 0.22 }, { x: 0.60, y: 0.22 }],
-  down:  [{ x: 0.22, y: 0.60 }, { x: 0.60, y: 0.60 }],
+  left: [{ x: 0.22, y: 0.22 }, { x: 0.22, y: 0.60 }],
+  up: [{ x: 0.22, y: 0.22 }, { x: 0.60, y: 0.22 }],
+  down: [{ x: 0.22, y: 0.60 }, { x: 0.60, y: 0.60 }],
 };
 
-/** Which corners of a segment should be rounded based on its neighbours. */
+/**
+ * Which corners of a segment should be rounded based on its neighbours.
+ * 
+ * @param {number}    idx   index of this segment (head = 0)
+ * @param {number}    total total number of segments
+ * @param {Direction} dir   direction this segment is facing
+ */
 function borderRadius(idx, total, dir) {
   const isHead = idx === 0;
   const isTail = idx === total - 1;
@@ -52,15 +64,15 @@ function borderRadius(idx, total, dir) {
 
   if (isHead) {
     if (dir === "right") return `${flat} ${r} ${r} ${flat}`;
-    if (dir === "left")  return `${r} ${flat} ${flat} ${r}`;
-    if (dir === "up")    return `${r} ${r} ${flat} ${flat}`;
-    if (dir === "down")  return `${flat} ${flat} ${r} ${r}`;
+    if (dir === "left") return `${r} ${flat} ${flat} ${r}`;
+    if (dir === "up") return `${r} ${r} ${flat} ${flat}`;
+    if (dir === "down") return `${flat} ${flat} ${r} ${r}`;
   }
   if (isTail) {
     if (dir === "right") return `${r} ${flat} ${flat} ${r}`;
-    if (dir === "left")  return `${flat} ${r} ${r} ${flat}`;
-    if (dir === "up")    return `${flat} ${flat} ${r} ${r}`;
-    if (dir === "down")  return `${r} ${r} ${flat} ${flat}`;
+    if (dir === "left") return `${flat} ${r} ${r} ${flat}`;
+    if (dir === "up") return `${flat} ${flat} ${r} ${r}`;
+    if (dir === "down") return `${r} ${r} ${flat} ${flat}`;
   }
   return flat;
 }
@@ -69,6 +81,22 @@ function borderRadius(idx, total, dir) {
 // Sub-component: single segment
 // ---------------------------------------------------------------------------
 
+/**
+ * @typedef {Object} SegmentProps
+ * @property {Position}  seg          Grid-coordinate position
+ * @property {number}    idx          Segment index (head = 0)
+ * @property {number}    total        Total amount of segments
+ * @property {string}    color        CSS color string for this segment (e.g. "#00ff88", "hsl(140 100% 55%)")
+ * @property {number}    cellSize     Pixels per grid cell
+ * @property {Direction} dir          Direction segment is facing
+ * @property {number}    transitionMs Transition (in milliseconds) to next segment's position
+ * @property {ReactNode} children     Child components
+ */
+
+/**
+ * Renders a single segment of the snake.
+ * @param {SegmentProps} props Segment props
+ */
 function Segment({ seg, idx, total, color, cellSize, dir, transitionMs, children }) {
   const size = cellSize - 2;
   const glow = idx === 0 ? `0 0 ${cellSize * 0.5}px ${color}99` : "none";
@@ -103,6 +131,20 @@ function Segment({ seg, idx, total, color, cellSize, dir, transitionMs, children
 // Main component
 // ---------------------------------------------------------------------------
 
+/**
+ * @typedef {Object} SnakeProps
+ * @property {Position[]} segments     Grid-coordinate positions, head first
+ * @property {string}     color        CSS color string for this snake (e.g. "#00ff88", "hsl(140 100% 55%)")
+ * @property {number}     cellSize     Pixels per grid cell (must match Board)
+ * @property {string}     name         Player label shown above the head
+ * @property {number}     transitionMs Should equal your server tick interval (ms) for butter-smooth motion
+ * @property {boolean}    alive        When false the snake fades out with a death shake
+ */
+
+/**
+ * Renders a single snake on the board.
+ * @param {SnakeProps} props Snake props
+ */
 export default function Snake({
   segments = [],
   color = "#00ff88",
