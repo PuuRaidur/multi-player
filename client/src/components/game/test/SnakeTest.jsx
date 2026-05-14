@@ -1,4 +1,4 @@
-import Snake from '../components/Snake'
+import Snake from '../Snake'
 
 export default function SnakeTest() {
   const snakes = [
