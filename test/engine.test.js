@@ -124,3 +124,29 @@ test("timer freezes when the game ends early", () => {
   assert.equal(game.phase, "ended");
   assert.equal(game.getTimeRemainingMs(), remainingAtEnd);
 });
+
+test("match resets to empty lobby after all players disconnect", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  game.removePlayer("a");
+  game.removePlayer("b");
+
+  assert.equal(game.phase, "lobby");
+  assert.equal(game.players.size, 0);
+  assert.equal(game.leadPlayerId, null);
+  assert.equal(game.winner, null);
+});
+
+test("lead moves to a connected player when the old lead disconnects", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  game.removePlayer("a");
+
+  assert.equal(game.leadPlayerId, "b");
+});

@@ -88,6 +88,8 @@ export class SnakeGame {
     player.out = true;
     player.lives = 0;
     this.addSystemMessage(`${player.name} disconnected and is out.`);
+    this.assignLeadIfNeeded();
+    this.resetIfNoPlayersConnected();
     this.finishIfOnlyOneRemaining();
   }
 
@@ -485,16 +487,36 @@ export class SnakeGame {
   }
 
   assignLeadIfNeeded() {
-    if (this.players.has(this.leadPlayerId)) {
+    if (this.players.get(this.leadPlayerId)?.connected) {
       return;
     }
 
-    const nextLead = this.players.values().next().value;
+    const nextLead = [...this.players.values()].find((player) => player.connected);
     this.leadPlayerId = nextLead ? nextLead.id : null;
     if (nextLead) {
       nextLead.lead = true;
       this.addSystemMessage(`${nextLead.name} is now the lead player.`);
     }
+  }
+
+  resetIfNoPlayersConnected() {
+    if ([...this.players.values()].some((player) => player.connected)) {
+      return;
+    }
+
+    this.phase = PHASES.lobby;
+    this.players.clear();
+    this.foods = [];
+    this.messages = [];
+    this.leadPlayerId = null;
+    this.startedAt = null;
+    this.pausedAt = null;
+    this.totalPausedMs = 0;
+    this.endedAt = null;
+    this.winner = null;
+    this.events = [];
+    this.nextPlayerNumber = 1;
+    this.spawnInitialFood();
   }
 
   snapshot() {
