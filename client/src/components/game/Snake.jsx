@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 
 /** @typedef {import('./types').Player} Player */
 /** @typedef {import('./types').Grid} Grid */
+/** @typedef {import('./types').Direction} Direction */
 
 /**
  * @typedef {Object} SnakeProps
@@ -18,6 +19,12 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
   /** @type {import('react').RefObject<HTMLDivElement>} */
   const containerRef = useRef(null);
 
+  /** @type {import('react').RefObject<{ x: number, y: number, el: HTMLDivElement }[]>} */
+  const segmentsRef = useRef([]);
+
+  /** @type {import('react').RefObject<HTMLDivElement>} */
+  const nameRef = useRef(null);
+
   /** @type {import('react').RefObject<SnakeProps>} */
   const dataRef = useRef({ player, grid, cellSize, tickRate });
 
@@ -25,11 +32,55 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
     dataRef.current = { player, grid, cellSize, tickRate };
   }, [player, grid, cellSize, tickRate]);
 
-  /** @type {import('react').RefObject<{ x: number, y: number, el: HTMLDivElement }[]>} */
-  const segmentsRef = useRef([]);
+  /**
+   * Calculates `border-radius` for a snake segment.
+   * @param {number} segmentIdx segment index (0 is snake's head)
+   * @param {Player} player player
+   * @returns {string} `border-radius` CSS value
+   */
+  const calculateBorderRadius = (segmentIdx, player) => {
+    const min = '15%';
+    const max = '40%';
 
-  /** @type {import('react').RefObject<HTMLDivElement>} */
-  const nameRef = useRef(null);
+    /** @type {{ [x in Direction]: string }} */
+    const rounded = {
+      up: `${max} ${max} ${min} ${min}`,
+      down: `${min} ${min} ${max} ${max}`,
+      left: `${max} ${min} ${min} ${max}`,
+      right: `${min} ${max} ${max} ${min}`,
+    };
+
+    // Snake head
+    if (player.snake.length === 1 || segmentIdx === 0) {
+      return rounded[player.direction];
+    }
+
+    // Snake tail
+    if (segmentIdx === player.snake.length - 1) {
+      const current = segmentsRef.current[segmentIdx];
+      const next = player.snake[segmentIdx];
+      let moveX = next.x - current.x;
+      let moveY = next.y - current.y;
+      if (Math.abs(moveX) > grid.width / 2) moveX = -Math.sign(moveX);
+      if (Math.abs(moveY) > grid.height / 2) moveY = -Math.sign(moveY);
+
+      // If tail is not moving, use diff with previous segment
+      if (Math.abs(moveX) < 0.05 && Math.abs(moveY) < 0.05) {
+        const prev = player.snake[segmentIdx - 1];
+        moveX = prev.x - current.x;
+        moveY = prev.y - current.y;
+      }
+
+      if (moveY < 0) return rounded.down;
+      else if (moveY > 0) return rounded.up;
+      else if (moveX < 0) return rounded.right;
+      else if (moveX > 0) return rounded.left;
+      else return max;
+    }
+
+    // Snake body
+    return min;
+  }
 
   useEffect(() => {
     let animationId = 0;
@@ -76,65 +127,38 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
       const linearSpeed = (1 / tickRate) * dt;
 
       player.snake.forEach((segment, i) => {
-        let r = segmentsRef.current[i];
-        if (!r) return;
-        let dx = segment.x - r.x;
-        let dy = segment.y - r.y;
+        let s = segmentsRef.current[i];
+        if (!s) return;
+        let dx = segment.x - s.x;
+        let dy = segment.y - s.y;
 
-        if (Math.abs(dx) > grid.width / 2) { r.x = segment.x; dx = 0; }
-        if (Math.abs(dy) > grid.height / 2) { r.y = segment.y; dy = 0; }
+        if (Math.abs(dx) > grid.width / 2) { s.x = segment.x; dx = 0; }
+        if (Math.abs(dy) > grid.height / 2) { s.y = segment.y; dy = 0; }
 
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist > 1.5) {
-          r.x = segment.x;
-          r.y = segment.y;
+          s.x = segment.x;
+          s.y = segment.y;
         } else if (dist > 0.001) {
-          if (Math.abs(dx) > 0) r.x += Math.sign(dx) * Math.min(Math.abs(dx), linearSpeed);
-          if (Math.abs(dy) > 0) r.y += Math.sign(dy) * Math.min(Math.abs(dy), linearSpeed);
+          if (Math.abs(dx) > 0) s.x += Math.sign(dx) * Math.min(Math.abs(dx), linearSpeed);
+          if (Math.abs(dy) > 0) s.y += Math.sign(dy) * Math.min(Math.abs(dy), linearSpeed);
         } else {
-          r.x = segment.x;
-          r.y = segment.y;
+          s.x = segment.x;
+          s.y = segment.y;
         }
 
-        const min = '15%';
-        const max = '40%';
-        let borderRadius = '0px';
-
-        if (player.snake.length === 1) {
-          borderRadius = max;
-        } else if (i === 0) {
-          const d = player.direction;
-          if (d === 'up') borderRadius = `${max} ${max} ${min} ${min}`;
-          else if (d === 'down') borderRadius = `${min} ${min} ${max} ${max}`;
-          else if (d === 'left') borderRadius = `${max} ${min} ${min} ${max}`;
-          else if (d === 'right') borderRadius = `${min} ${max} ${max} ${min}`;
-        } else if (i === player.snake.length - 1) {
-          const prev = player.snake[i - 1];
-          let ddx = prev.x - segment.x;
-          let ddy = prev.y - segment.y;
-          if (Math.abs(ddx) > grid.width / 2) ddx = -Math.sign(ddx);
-          if (Math.abs(ddy) > grid.height / 2) ddy = -Math.sign(ddy);
-
-          if (ddy < 0) borderRadius = `${min} ${min} ${max} ${max}`;
-          else if (ddy > 0) borderRadius = `${max} ${max} ${min} ${min}`;
-          else if (ddx < 0) borderRadius = `${min} ${max} ${max} ${min}`;
-          else if (ddx > 0) borderRadius = `${max} ${min} ${min} ${max}`;
-          else borderRadius = max;
-        } else {
-          borderRadius = min;
-        }
-
+        const borderRadius = calculateBorderRadius(i, player);
         const ss = cellSize * 0.9;
 
-        r.el.style.left = `${r.x * cellSize + (cellSize - ss) / 2 - 0.5}px`;
-        r.el.style.top = `${r.y * cellSize + (cellSize - ss) / 2 - 0.5}px`;
-        r.el.style.width = `${ss + 1}px`;
-        r.el.style.height = `${ss + 1}px`;
-        r.el.style.backgroundColor = color;
-        r.el.style.filter = i == 0 ? 'brightness(120%)' : 'none';
-        r.el.style.opacity = opacity;
-        r.el.style.boxShadow = boxShadow;
-        r.el.style.borderRadius = borderRadius;
+        s.el.style.left = `${s.x * cellSize + (cellSize - ss) / 2 - 0.5}px`;
+        s.el.style.top = `${s.y * cellSize + (cellSize - ss) / 2 - 0.5}px`;
+        s.el.style.width = `${ss + 1}px`;
+        s.el.style.height = `${ss + 1}px`;
+        s.el.style.backgroundColor = color;
+        s.el.style.filter = i == 0 ? 'brightness(120%)' : 'none';
+        s.el.style.opacity = opacity;
+        s.el.style.boxShadow = boxShadow;
+        s.el.style.borderRadius = borderRadius;
       });
 
       // Render Head Setup
