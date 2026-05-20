@@ -7,7 +7,7 @@ export function useKeyboardControls() {
       // Prevent the default OS keyboard repeat
       if (e.repeat) return;
 
-      let direction = null;
+      let direction;
 
       switch (e.key) {
         case 'ArrowUp':
@@ -34,14 +34,12 @@ export function useKeyboardControls() {
           return;
       }
 
-      if (direction) {
-        // Prevent default window scrolling when using arrow keys
-        if (e.key.startsWith('Arrow')) {
-          e.preventDefault();
-        }
-
-        socket.emit('input', { direction });
+      // Prevent default window scrolling when using arrow keys
+      if (e.key.startsWith('Arrow')) {
+        e.preventDefault();
       }
+
+      socket.emit('input', { direction });
     };
 
     window.addEventListener('keydown', handleKeyDown);

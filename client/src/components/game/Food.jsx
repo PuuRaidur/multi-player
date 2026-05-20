@@ -1,112 +1,61 @@
-import { useState, useEffect } from "react";
+import './Food.css'
 
-// ---------------------------------------------------------------------------
-// Per-food color palette keyed by type
-// ---------------------------------------------------------------------------
-
-const TYPE_STYLES = {
-  normal: {
-    colors: ["#ff8c00", "#ff44dd", "#44ddff", "#aaff44"],
-    sizeRatio: 0.48,
-    glowMult: 1,
-  },
-  bonus: {
-    colors: ["#00eeff"],
-    sizeRatio: 0.64,
-    glowMult: 1.6,
-  },
-  speed: {
-    colors: ["#ffd700"],
-    sizeRatio: 0.64,
-    glowMult: 1.2,
-  },
-  life: {
-    colors: ["#ff4466"],
-    sizeRatio: 0.92,
-    glowMult: 2.2,
-  },
-};
-
-/**
- * Pick a stable color from the palette using the food id.
- * @param {Food} food food
- * @returns {string} CSS color string
- */
-function colorForFood(food) {
-  const palette = (TYPE_STYLES[food.type] ?? TYPE_STYLES.normal).colors;
-  // Hash the id string to an index
-  let hash = 0;
-  for (let i = 0; i < food.id.length; i++) hash = (hash * 31 + food.id.charCodeAt(i)) | 0;
-  return palette[Math.abs(hash) % palette.length];
-}
-
-/**
- * @typedef {"normal"|"bonus"|"speed"|"life"} FoodType
- */
-
-/**
- * @typedef {Object} Food
- * @property {number}    id   Stable `id` is required for animation
- * @property {number}    x    X-coordinate on the board grid
- * @property {number}    y    Y-coordinate on the board grid
- * @property {FoodType?} type Food type
- */
+/** @typedef {import('./types').Food} Food */
 
 /**
  * @typedef {Object} FoodProps
- * @property {Food}    food      The food to render. 
- * @property {number}  cellSize  Pixels per grid cell
- * @property {boolean} isEating  Triggers the eat animation
+ * @property {Food} food Food location in grid coordinates
+ * @property {number} cellW Grid cell width
+ * @property {number} cellH Grid cell heigth
  */
 
 /**
- * Renders single food item.
- * @param {FoodProps} props Food props
- * @returns 
+ * @param {FoodProps} FoodProps
  */
-export default function Food({ food, cellSize = 32, isEating = false }) {
-  const [phase, setPhase] = useState("spawning");
-  useEffect(() => {
-    setPhase("spawning");
-    const t = setTimeout(() => {
-      setPhase("idle")
-    }, 350);
-    return () => clearTimeout(t);
-  }, []);
+export default function Food({ food, cellW, cellH }) {
+  let emoji = '🍊';
+  let filter = 'drop-shadow(0 0 6px rgba(249, 115, 22, 0.6))';
 
-  useEffect(() => {
-    if (isEating) setPhase("eating");
-  }, [isEating]);
+  if (food.type === 'normal') {
+    emoji = '🍊';
+    filter = 'drop-shadow(0 0 6px rgba(249, 115, 22, 0.6))';
+  } else if (food.type === 'bonus') {
+    emoji = '🥝';
+    filter = 'drop-shadow(0 0 8px rgba(132, 204, 22, 0.8))';
+  } else if (food.type === 'extraLife') {
+    emoji = '❤️';
+    filter = 'drop-shadow(0 0 12px rgba(239, 68, 68, 1)) drop-shadow(0 0 24px rgba(239, 68, 68, 0.8))';
+  } else if (food.type === 'speedBoost') {
+    emoji = '⚡';
+    filter = 'drop-shadow(0 0 10px rgba(6, 182, 212, 0.9))';
+  }
 
-  const ts = TYPE_STYLES[food.type] ?? TYPE_STYLES.normal;
-  const color = colorForFood(food);
-  const sz = cellSize * ts.sizeRatio;
-  const offset = (cellSize - sz) / 2;
-  const glowR = cellSize * 0.45 * ts.glowMult;
+  const sizeW = cellW * 0.9;
+  const sizeH = cellH * 0.9;
+  const centerX = (food.x + 0.5) * cellW;
+  const centerY = (food.y + 0.5) * cellH;
 
-  const scale = phase === "spawning" ? 0 : phase === "eating" ? 0.1 : 1;
-  const opacity = phase === "eating" ? 0 : 1;
-  const transition =
-    phase === "spawning" ? "transform 350ms cubic-bezier(.175,.885,.32,1.6), opacity 200ms" :
-      phase === "eating" ? "transform 160ms ease-in, opacity 160ms ease-in" : "transform .2s";
+  // const animationDelay = -(food.x * food.y * 0.2);
 
   return (
-    <div style={{ position: "absolute", transform: `translate(${food.x * cellSize + offset}px, ${food.y * cellSize + offset}px)`, width: sz, height: sz, willChange: "transform" }}>
-      {/* Bonus food: pulsing ring */}
-      {food.type === "bonus" && phase === "idle" && (
-        <div style={{ position: "absolute", inset: -sz * 0.25, borderRadius: "50%", border: `2px solid ${color}77`, animation: "foodPulse 1.4s ease-out infinite" }} />
-      )}
-
-      {/* Food body */}
-      <div style={{
-        width: sz, height: sz,
-        borderRadius: food.type === "speed" ? "50% 50% 38% 38% / 60% 60% 40% 40%" : "50%",
-        background: `radial-gradient(circle at 36% 36%, ${color}ee, ${color}66 80%)`,
-        boxShadow: `0 0 ${glowR * 0.6}px ${color}bb, 0 0 ${glowR}px ${color}44`,
-        transform: `scale(${scale})`,
-        opacity,
-        transition,
-      }} />
+    <div
+      className="animate-food-popin"
+      style={{
+        position: 'absolute',
+        zIndex: 10,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        lineHeight: 1,
+        width: `${sizeW}px`,
+        height: `${sizeH}px`,
+        left: `${centerX - sizeW / 2}px`,
+        top: `${centerY - sizeH / 2}px`,
+        fontSize: `${Math.min(sizeW, sizeH) * 0.9}px`,
+        filter: filter,
+      }}
+    >
+      <div className="animate-food-pulse">{emoji}</div>
     </div>
   );
 }

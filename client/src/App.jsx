@@ -1,8 +1,8 @@
 import './App.css'
-import FoodTest from './test/FoodTest'
+import SnakeDemo from './components/test/SnakeDemo'
 
 export default function App() {
   return (
-    <FoodTest />
+    <SnakeDemo />
   )
 }
