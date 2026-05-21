@@ -10,6 +10,7 @@ export const GAME_CONFIG = Object.freeze({
   maxLives: 5,
   startingLength: 4,
   roundDurationMs: 180_000,
+  simulationTickMs: 50,
   tickMs: 100,
   broadcastMs: 50,
   respawnInvulnerableMs: 1500,

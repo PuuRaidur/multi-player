@@ -234,7 +234,7 @@ export class SnakeGame {
     return true;
   }
 
-  tick() {
+  tick(elapsedMs = this.config.tickMs) {
     if (this.phase !== PHASES.playing) {
       return;
     }
@@ -244,13 +244,15 @@ export class SnakeGame {
       return;
     }
 
+    const moveProgressPerTick = elapsedMs / this.config.tickMs;
     for (const player of this.players.values()) {
       if (!player.out && player.snake.length > 0) {
-        player.moveProgress += this.getPlayerSpeedMultiplier(player);
+        player.moveProgress += moveProgressPerTick * this.getPlayerSpeedMultiplier(player);
       }
     }
 
-    while ([...this.players.values()].some((player) => !player.out && player.moveProgress >= 1)) {
+    // Move at most one grid cell per simulation tick so boosted snakes do not skip turn opportunities.
+    if ([...this.players.values()].some((player) => !player.out && player.moveProgress >= 1)) {
       this.moveReadyPlayers();
     }
 

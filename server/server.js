@@ -106,9 +106,9 @@ io.on("connection", (socket) => {
 
 // The server updates game rules at a fixed rate, while the client handles smooth rendering.
 setInterval(() => {
-  game.tick();
+  game.tick(GAME_CONFIG.simulationTickMs);
   broadcastGameEvents();
-}, GAME_CONFIG.tickMs);
+}, GAME_CONFIG.simulationTickMs);
 
 // Frequent snapshots keep scores, lives, timer, and positions synced for all players.
 setInterval(() => {
