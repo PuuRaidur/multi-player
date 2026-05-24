@@ -1,0 +1,46 @@
+.game-container {
+  position: relative;
+}
+
+.game-loading {
+  min-height: 100vh;
+  background: #000000;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.125rem;
+}
+
+.overlay-btn {
+  position: absolute;
+  left: 1rem;
+  z-index: 30;
+  background: #262626;
+  color: white;
+  border: 1px solid #404040;
+  border-radius: 0.5rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.overlay-btn:hover {
+  background: #404040;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.overlay-btn:active {
+  transform: translateY(0);
+}
+
+.overlay-btn.top {
+  top: 1rem;
+}
+
+.overlay-btn.bottom {
+  bottom: 1rem;
+}

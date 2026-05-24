@@ -1,0 +1,169 @@
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.menu-card {
+  background: #171717;
+  border: 1px solid #404040;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  width: 100%;
+  max-width: 24rem;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(1rem); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  color: white;
+  margin-bottom: 1.5rem;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.menu-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.menu-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.menu-btn:active {
+  transform: translateY(0);
+}
+
+.menu-btn.resume {
+  background: #16a34a;
+}
+
+.menu-btn.resume:hover {
+  background: #22c55e;
+}
+
+.menu-btn.pause {
+  background: #ca8a04;
+}
+
+.menu-btn.pause:hover {
+  background: #eab308;
+}
+
+.menu-btn.quit {
+  background: #dc2626;
+}
+
+.menu-btn.quit:hover {
+  background: #ef4444;
+}
+
+.menu-btn.close {
+  background: #404040;
+}
+
+.menu-btn.close:hover {
+  background: #525252;
+}
+
+.menu-volume {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #404040;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.menu-volume label {
+  font-size: 0.75rem;
+  color: #a3a3a3;
+  white-space: nowrap;
+}
+
+.menu-volume input[type="range"] {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  background: #404040;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.menu-volume input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #171717;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.menu-volume input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.menu-messages {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #404040;
+  max-height: 10rem;
+  overflow-y: auto;
+}
+
+.menu-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.menu-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-messages::-webkit-scrollbar-thumb {
+  background: #525252;
+  border-radius: 2px;
+}
+
+.menu-message {
+  font-size: 0.875rem;
+  color: #d4d4d4;
+  padding: 0.25rem 0;
+}
+
+.menu-message:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.02);
+}

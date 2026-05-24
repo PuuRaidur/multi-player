@@ -1,8 +1,18 @@
+import { BrowserRouter, Routes, Route } from 'react-router'
+import { GameProvider } from './GameProvider'
+import PreGame from './pages/PreGame'
+import GamePage from './pages/Game'
 import './App.css'
-import SnakeDemo from './components/test/SnakeDemo'
 
 export default function App() {
   return (
-    <SnakeDemo />
+    <GameProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<PreGame />} />
+          <Route path="/game" element={<GamePage />} />
+        </Routes>
+      </BrowserRouter>
+    </GameProvider>
   )
 }
