@@ -4,3 +4,4 @@ node_modules/
 work-plan.md
 .vscode/
 server/package-lock.json
+multi-player.code-workspace
