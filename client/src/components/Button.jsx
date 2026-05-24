@@ -1,4 +1,4 @@
-import 'Button.css'
+import './Button.css'
 
 export default function Button({ text, hook, variant = 'primary' }) {
   return (

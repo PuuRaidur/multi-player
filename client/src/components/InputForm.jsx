@@ -1,9 +1,9 @@
 import './InputForm.css';
 
-export default function InputForm({ onSubmit, placeholder }) {
+export default function InputForm({ onSubmit, placeholder, value, onChange }) {
   return (
     <form className="input-form" onSubmit={onSubmit}>
-      <input className="input-field" type="text" placeholder={placeholder}/>
+      <input className="input-field" type="text" placeholder={placeholder} value={value} onChange={onChange}/>
     </form>
   )
 }
