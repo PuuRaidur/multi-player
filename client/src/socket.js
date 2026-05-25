@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 // Server URL
-const SERVER_URL = 'http://localhost:3100';
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3100';
 
 // Create and export socket instance
 const socket = io(SERVER_URL, {
