@@ -16,5 +16,5 @@
 
 /* Inner child handles the continuous idle loop */
 .animate-food-pulse {
-  animation: foodPulse 0.8s infinite alternate linear;
+  animation: foodPulse 0.4s infinite alternate linear;
 }

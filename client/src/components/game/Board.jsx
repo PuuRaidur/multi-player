@@ -25,14 +25,33 @@ function formatTime(/** @type {number} */ ms) {
 export default function Board({ snapshot, tickRate = 150 }) {
   /** @type {import('react').RefObject<HTMLDivElement>} */
   const containerRef = useRef(null);
-  const [logicalSize, setLogicalSize] = useState(800);
+  const [dimensions, setDimensions] = useState({ width: 400, height: 400, cellSize: 25 });
 
   useEffect(() => {
+    if (!snapshot || !snapshot.grid) return;
+    const gridW = snapshot.grid.width || 16;
+    const gridH = snapshot.grid.height || 16;
+
     const handleResize = () => {
       const parent = containerRef.current?.parentElement;
       if (!parent) return;
-      setLogicalSize(Math.max(200, Math.min(parent.clientWidth - 32, parent.clientHeight - 32)));
+
+      // Reserve space for margins
+      const availableW = parent.clientWidth - 32;
+      const availableH = parent.clientHeight - 32;
+
+      // Compute how big each cell can be to fit inside the parent
+      const cellWLimit = availableW / gridW;
+      const cellHLimit = availableH / gridH;
+      const cellSize = Math.floor(Math.max(10, Math.min(cellWLimit, cellHLimit)));
+
+      setDimensions({
+        width: cellSize * gridW,
+        height: cellSize * gridH,
+        cellSize: cellSize
+      });
     };
+
     handleResize();
 
     // Fallback to ResizeObserver for robust layout updates
@@ -50,8 +69,8 @@ export default function Board({ snapshot, tickRate = 150 }) {
 
   if (!snapshot || !snapshot.grid) return null;
 
-  const cellW = logicalSize / snapshot.grid.width;
-  const cellH = logicalSize / snapshot.grid.height;
+  const cellW = dimensions.cellSize;
+  const cellH = dimensions.cellSize;
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white/20">
@@ -97,7 +116,7 @@ export default function Board({ snapshot, tickRate = 150 }) {
           <div className="w-full h-full flex items-center justify-center p-4">
             <div
               ref={containerRef}
-              style={{ width: logicalSize, height: logicalSize }}
+              style={{ width: dimensions.width, height: dimensions.height }}
               className="relative bg-[#1e1e1e] rounded-xl shadow-2xl overflow-hidden"
             >
               <Grid cellW={cellW} cellH={cellH} />
@@ -105,7 +124,7 @@ export default function Board({ snapshot, tickRate = 150 }) {
                 <Food key={food.id} food={food} cellW={cellW} cellH={cellH} />
               )}
               {snapshot.players.map((player) =>
-                <Snake key={player.id} player={player} grid={snapshot.grid} cellSize={cellW} tickRate={tickRate} />
+                <Snake key={player.id} player={player} grid={snapshot.grid} cellW={cellW} cellH={cellH} tickRate={tickRate} />
               )}
             </div>
             {snapshot.phase === 'ended' && <EndScreen winner={snapshot.winner} />}

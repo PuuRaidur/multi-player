@@ -18,7 +18,7 @@ function generateMockSnapshot() {
     phase: "playing",
     gameMode: "classic",
     grid: {
-      width: 16,
+      width: 24,
       height: 16
     },
     minPlayers: 2,
@@ -142,11 +142,11 @@ export default function SnakeDemo() {
         ).filter(el => el != null);
 
         if (Math.random() < 0.2) {
-          const x = Math.round(Math.random() * next.grid.width);
-          const y = Math.round(Math.random() * next.grid.height);
+          const x = Math.floor(Math.random() * next.grid.width);
+          const y = Math.floor(Math.random() * next.grid.height);
           /** @type {import('../game/types').Food[]} */
           const types = ["normal", "bonus", "extraLife", "speedBoost"];
-          const type = types[Math.round(Math.random() * 4)]
+          const type = types[Math.floor(Math.random() * 4)]
           next.foods.push({ x, y, type })
         }
 

@@ -8,14 +8,15 @@ import { useEffect, useRef } from 'react';
  * @typedef {Object} SnakeProps
  * @property {Player} player Player info
  * @property {Grid} grid Grid
- * @property {number} cellSize Grid cell size
+ * @property {number} cellW Grid cell width
+ * @property {number} cellH Grid cell height
  * @property {number?} tickRate Server tick rate in milliseconds. Defaults to 150
  */
 
 /**
  * @param {SnakeProps} SnakeProps 
  */
-export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
+export default function Snake({ player, grid, cellW, cellH, tickRate = 150 }) {
   /** @type {import('react').RefObject<HTMLDivElement>} */
   const containerRef = useRef(null);
 
@@ -26,11 +27,11 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
   const nameRef = useRef(null);
 
   /** @type {import('react').RefObject<SnakeProps>} */
-  const dataRef = useRef({ player, grid, cellSize, tickRate });
+  const dataRef = useRef({ player, grid, cellW, cellH, tickRate });
 
   useEffect(() => {
-    dataRef.current = { player, grid, cellSize, tickRate };
-  }, [player, grid, cellSize, tickRate]);
+    dataRef.current = { player, grid, cellW, cellH, tickRate };
+  }, [player, grid, cellW, cellH, tickRate]);
 
   /**
    * Calculates `border-radius` for a snake segment.
@@ -90,7 +91,7 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
       const dt = Math.min(time - lastTime, 100);
       lastTime = time;
 
-      const { player, grid, cellSize, tickRate } = dataRef.current;
+      const { player, grid, cellW, cellH, tickRate } = dataRef.current;
       if (!player || !player.snake || player.snake.length === 0 || !containerRef.current) {
         animationId = requestAnimationFrame(animate);
         return;
@@ -120,9 +121,10 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
       const opacity = player.out ? '0.3' : '1';
       const isInvulnerable = player.invulnerable && !player.out;
       const glowStr = (Math.sin(time / 20) + 1) / 2;
+      const cellSizeRef = Math.min(cellW, cellH);
       const boxShadow = isInvulnerable
-        ? `0 0 ${cellSize * 0.5 * glowStr}px ${color}`
-        : `0 0 ${cellSize * 0.5}px ${color}60`;
+        ? `0 0 ${cellSizeRef * 0.5 * glowStr}px ${color}`
+        : `0 0 ${cellSizeRef * 0.5}px ${color}60`;
 
       const linearSpeed = (1 / tickRate) * dt;
 
@@ -148,12 +150,13 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
         }
 
         const borderRadius = calculateBorderRadius(i, player);
-        const ss = cellSize * 0.9;
+        const ssW = cellW * 0.9;
+        const ssH = cellH * 0.9;
 
-        s.el.style.left = `${s.x * cellSize + (cellSize - ss) / 2 - 0.5}px`;
-        s.el.style.top = `${s.y * cellSize + (cellSize - ss) / 2 - 0.5}px`;
-        s.el.style.width = `${ss + 1}px`;
-        s.el.style.height = `${ss + 1}px`;
+        s.el.style.left = `${s.x * cellW + (cellW - ssW) / 2 - 0.5}px`;
+        s.el.style.top = `${s.y * cellH + (cellH - ssH) / 2 - 0.5}px`;
+        s.el.style.width = `${ssW + 1}px`;
+        s.el.style.height = `${ssH + 1}px`;
         s.el.style.backgroundColor = color;
         s.el.style.filter = i == 0 ? 'brightness(120%)' : 'none';
         s.el.style.opacity = opacity;
@@ -180,8 +183,8 @@ export default function Snake({ player, grid, cellSize, tickRate = 150 }) {
 
         nameRef.current.innerText = player.name;
         nameRef.current.style.color = player.out ? '#888888' : '#ffffff';
-        nameRef.current.style.left = `${head.x * cellSize + cellSize / 2 - 50}px`;
-        nameRef.current.style.top = `${head.y * cellSize - 22}px`;
+        nameRef.current.style.left = `${head.x * cellW + cellW / 2 - 50}px`;
+        nameRef.current.style.top = `${head.y * cellH - 22}px`;
         nameRef.current.style.opacity = opacity;
       }
 
