@@ -36,7 +36,7 @@ export default function GamePage() {
 
   return (
     <div className="game-container">
-      <Board snapshot={snapshot} tickRate={50} />
+      <Board snapshot={snapshot} tickRate={100} />
 
       <button
         className="overlay-btn top"
