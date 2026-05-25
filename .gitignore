@@ -3,4 +3,3 @@ node_modules/
 *.log
 work-plan.md
 .vscode/
-server/package-lock.json
