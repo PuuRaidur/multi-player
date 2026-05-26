@@ -18,10 +18,12 @@ export const GAME_CONFIG = Object.freeze({
   bonusFoodScore: 25,
   tailBiteScore: 20,
   minimumTailBiteLength: 3,
+  invulnerabilityDurationMs: 10_000,
   normalFoodCount: 5,
   bonusFoodCount: 1,
   bonusFoodChance: 0.18,
-  extraLifePowerUpCount: 1
+  extraLifePowerUpCount: 1,
+  invulnerabilityPowerUpCount: 1
 });
 
 export const DIRECTIONS = Object.freeze({

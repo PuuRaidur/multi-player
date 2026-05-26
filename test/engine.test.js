@@ -10,7 +10,8 @@ const testConfig = {
   roundDurationMs: 1000,
   normalFoodCount: 0,
   bonusFoodCount: 0,
-  extraLifePowerUpCount: 0
+  extraLifePowerUpCount: 0,
+  invulnerabilityPowerUpCount: 0
 };
 
 test("requires unique player names", () => {
@@ -89,6 +90,34 @@ test("extra life power-up increases lives without passing max lives", () => {
   game.tick();
 
   assert.equal(player.lives, testConfig.maxLives);
+});
+
+test("invulnerability power-up prevents losing a life on collision", () => {
+  let now = 1000;
+  const game = new SnakeGame(testConfig, () => now);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const player = game.players.get("a");
+  const head = player.snake[0];
+  game.foods = [{ id: "shield1", type: "invulnerability", x: head.x + 1, y: head.y }];
+
+  game.tick();
+
+  assert.equal(player.invulnerableUntil, now + testConfig.invulnerabilityDurationMs);
+  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").invulnerable, true);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "invulnerability"), true);
+
+  player.snake = [{ x: 0, y: 0 }];
+  player.direction = "left";
+  player.queuedDirection = "left";
+  game.tick();
+
+  assert.equal(player.lives, testConfig.startingLives);
+
+  now += testConfig.invulnerabilityDurationMs + 1;
+  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").invulnerable, false);
 });
 
 test("tail hunt mode rewards biting another snake tail", () => {

@@ -392,6 +392,11 @@ export class SnakeGame {
       return { label: "an extra life power-up", sound: "extraLife" };
     }
 
+    if (food.type === "invulnerability") {
+      player.invulnerableUntil = Math.max(player.invulnerableUntil, this.now() + this.config.invulnerabilityDurationMs);
+      return { label: "an invulnerability power-up", sound: "invulnerability" };
+    }
+
     player.score += this.config.normalFoodScore;
     return { label: "food", sound: "food" };
   }
@@ -457,6 +462,7 @@ export class SnakeGame {
     const normalCount = this.foods.filter((food) => food.type === "normal").length;
     const bonusCount = this.foods.filter((food) => food.type === "bonus").length;
     const extraLifeCount = this.foods.filter((food) => food.type === "extraLife").length;
+    const invulnerabilityCount = this.foods.filter((food) => food.type === "invulnerability").length;
 
     for (let i = normalCount; i < this.config.normalFoodCount; i += 1) {
       this.spawnFood("normal");
@@ -470,6 +476,10 @@ export class SnakeGame {
 
     for (let i = extraLifeCount; i < this.config.extraLifePowerUpCount; i += 1) {
       this.spawnFood("extraLife");
+    }
+
+    for (let i = invulnerabilityCount; i < this.config.invulnerabilityPowerUpCount; i += 1) {
+      this.spawnFood("invulnerability");
     }
   }
 
