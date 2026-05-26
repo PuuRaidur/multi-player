@@ -12,9 +12,50 @@
 /* Outer wrapper handles the entrance */
 .animate-food-popin {
   animation: foodPopin 0.5s ease-out forwards;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
 }
 
 /* Inner child handles the continuous idle loop */
 .animate-food-pulse {
+  will-change: transform;
   animation: foodPulse 0.4s infinite alternate linear;
+  transform: translate3d(0, 0, 0);
+}
+
+.food {
+  position: absolute;
+  z-index: 10;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .normal {
+    &::after {
+      content: '🍊';
+    }
+    filter: drop-shadow(0 0 12px rgba(229, 155, 22, 0.8));
+  }
+
+  .bonus {
+    &::after {
+      content: '🥝';
+    }
+    filter: drop-shadow(0 0 16px rgba(132, 204, 22, 0.8));
+  }
+
+  .extra-life {
+    &::after {
+      content: '❤️';
+    }
+    filter: drop-shadow(0 0 20px rgba(239, 68, 68, 1));
+  }
+
+  .invulnerability {
+    &::after {
+      content: '🛡️';
+    }
+    filter: drop-shadow(0 0 16px rgba(6, 182, 212, 1));
+  }
 }
