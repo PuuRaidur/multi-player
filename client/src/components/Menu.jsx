@@ -25,20 +25,20 @@ export default function Menu({ phase, onPause, onResume, onQuit, onClose }) {
 
         <div className="menu-buttons">
           {isPaused ? (
-            <Button className="menu-btn resume" hook={() => { onResume(); onClose() }}>
+            <Button className="menu-btn resume" onClick={() => { onResume(); onClose() }}>
               Resume Game
             </Button>
           ) : (
-            <Button className="menu-btn pause" hook={() => { onPause(); onClose() }}>
+            <Button className="menu-btn pause" onClick={() => { onPause(); onClose() }}>
               Pause Game
             </Button>
           )}
 
-          <Button className="menu-btn quit" hook={() => { onQuit(); onClose() }}>
+          <Button className="menu-btn quit" onClick={() => { onQuit(); onClose() }}>
             Quit Game
           </Button>
 
-          <Button className="menu-btn close" hook={onClose}>
+          <Button className="menu-btn close" onClick={onClose}>
             Close
           </Button>
         </div>

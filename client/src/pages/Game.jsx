@@ -13,6 +13,7 @@ export default function GamePage() {
   const { snapshot, pause, resume, quit } = useGame()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
 
   useKeyboardControls()
   useSounds()
@@ -41,12 +42,16 @@ export default function GamePage() {
 
       <Button
         className="overlay-btn top"
-        hook={() => setMenuOpen(prev => !prev)}
+        onClick={() => setMenuOpen(prev => !prev)}
       >
         Menu
       </Button>
 
-      <Chat />
+      <Button className="chat-toggle" onClick={() => setChatOpen(true)}>
+        Chat
+      </Button>
+
+      <Chat open={chatOpen} onClose={() => setChatOpen(false)} />
 
       {menuOpen && (
         <Menu

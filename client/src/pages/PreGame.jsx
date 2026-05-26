@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { useGame } from '../hooks/useGame'
 import Button from '../components/Button'
+import InputForm, { InputField } from '../components/Input'
 import './PreGame.css'
 
 export default function PreGame() {
@@ -79,14 +80,13 @@ export default function PreGame() {
 
 function JoinForm({ name, setName, onSubmit, error, clearError }) {
   return (
-    <form onSubmit={onSubmit} className="join-form">
+    <InputForm onSubmit={onSubmit}>
       <label>Choose your nickname</label>
-      <input
+      <InputField
         type="text"
         placeholder="Enter nickname..."
         value={name}
         onChange={e => { setName(e.target.value); if (error) clearError() }}
-        className="join-input"
         maxLength={16}
         autoFocus
       />
@@ -104,7 +104,7 @@ function JoinForm({ name, setName, onSubmit, error, clearError }) {
       >
         Join Lobby
       </Button>
-    </form>
+      </InputForm>
   )
 }
 
@@ -136,17 +136,19 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, re
 
       <div className="actions">
         <Button
-          text={myPlayer.ready ? 'Not Ready' : 'Ready'}
-          hook={onReady}
+          onClick={onReady}
           variant={myPlayer.ready ? 'yellow' : 'green'}
-        />
+        >
+          {myPlayer.ready ? 'Not Ready' : 'Ready'}
+        </Button>
 
         {isLead && (
           <Button
-            text="Start Game"
-            hook={onStart}
+            onClick={onStart}
             variant="primary"
-          />
+          >
+            Start Game
+          </Button>
         )}
 
         {isLead && !canStart && (

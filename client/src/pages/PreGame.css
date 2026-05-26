@@ -70,40 +70,12 @@
   50% { opacity: 0.5; }
 }
 
-/* Join form */
-.join-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.join-form label {
+.input-form label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: #a3a3a3;
   font-weight: 500;
-}
-
-.join-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  background: #262626;
-  border: 1px solid #404040;
-  color: white;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.2s;
-}
-
-.join-input::placeholder {
-  color: #525252;
-}
-
-.join-input:focus {
-  border-color: #22c55e;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
 }
 
 .error-box {

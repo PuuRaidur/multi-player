@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import { GameProvider } from './GameProvider'
 import PreGame from './pages/PreGame'
 import GamePage from './pages/Game'
-import './App.css'
 
 export default function App() {
   return (
