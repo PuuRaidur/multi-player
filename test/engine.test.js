@@ -34,6 +34,21 @@ test("only lead player can start the match", () => {
   assert.equal(game.phase, "playing");
 });
 
+test("paused snapshot includes the player who paused", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  assert.equal("pausedBy" in game.snapshot(), false);
+
+  assert.equal(game.pause("b"), true);
+  assert.deepEqual(game.snapshot().pausedBy, { id: "b", name: "Berta" });
+
+  assert.equal(game.resume("a"), true);
+  assert.equal("pausedBy" in game.snapshot(), false);
+});
+
 test("food increases score and snake length", () => {
   let now = 1000;
   const game = new SnakeGame(testConfig, () => now);

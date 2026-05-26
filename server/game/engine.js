@@ -18,6 +18,7 @@ export class SnakeGame {
     this.leadPlayerId = null;
     this.startedAt = null;
     this.pausedAt = null;
+    this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
     this.winner = null;
@@ -122,6 +123,7 @@ export class SnakeGame {
     this.phase = PHASES.playing;
     this.startedAt = this.now();
     this.pausedAt = null;
+    this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
     this.winner = null;
@@ -155,6 +157,7 @@ export class SnakeGame {
     this.phase = PHASES.lobby;
     this.startedAt = null;
     this.pausedAt = null;
+    this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
     this.winner = null;
@@ -185,6 +188,10 @@ export class SnakeGame {
 
     this.phase = PHASES.paused;
     this.pausedAt = this.now();
+    this.pausedBy = {
+      id: player.id,
+      name: player.name
+    };
     this.addSystemMessage(`${player.name} paused the game.`);
     this.emitEvent("sound", { name: "pause", playerId: player.id, playerName: player.name });
     return true;
@@ -198,6 +205,7 @@ export class SnakeGame {
 
     this.totalPausedMs += this.now() - this.pausedAt;
     this.pausedAt = null;
+    this.pausedBy = null;
     this.phase = PHASES.playing;
     this.addSystemMessage(`${player.name} resumed the game.`);
     this.emitEvent("sound", { name: "resume", playerId: player.id, playerName: player.name });
@@ -614,6 +622,7 @@ export class SnakeGame {
     this.leadPlayerId = null;
     this.startedAt = null;
     this.pausedAt = null;
+    this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
     this.winner = null;
@@ -627,6 +636,7 @@ export class SnakeGame {
     return {
       type: "state",
       phase: this.phase,
+      ...(this.phase === PHASES.paused ? { pausedBy: this.pausedBy } : {}),
       gameMode: this.config.gameMode,
       grid: {
         width: this.config.gridWidth,
