@@ -12,6 +12,7 @@
  * @typedef {Object} Snapshot
  * @property {"state"} type
  * @property {Phase} phase
+ * @property {{id: string, name: string}} pausedBy
  * @property {"tailHunt"?} gameMode
  * @property {Grid} grid
  * @property {number} minPlayers
@@ -37,7 +38,7 @@
 
 /**
  * @typedef {Object} Food
- * @property {"normal"|"bonus"|"extraLife"|"speedBoost"} type Food type
+ * @property {"normal"|"bonus"|"extraLife"|"invulnerability"} type Food type
  * @property {number} x X grid coordinate
  * @property {number} y Y grid coordinate
  */

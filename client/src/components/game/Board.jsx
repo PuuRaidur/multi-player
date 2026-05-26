@@ -65,7 +65,7 @@ export default function Board({ snapshot, tickRate = 150 }) {
       window.removeEventListener('resize', handleResize);
       observer.disconnect();
     };
-  }, []);
+  }, [snapshot]);
 
   if (!snapshot || !snapshot.grid) return null;
 
@@ -77,9 +77,9 @@ export default function Board({ snapshot, tickRate = 150 }) {
       <div className="w-full h-screen bg-black flex flex-col items-center justify-center font-sans p-4 relative">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-neutral-900 via-black to-black -z-10" />
 
-        <div className="w-full max-w-5xl bg-neutral-900 border border-neutral-800 rounded-t-2xl shadow-2xl p-4 flex flex-col z-10 gap-4">
+        <div className="w-full max-w-7xl bg-neutral-900 border border-neutral-800 rounded-t-2xl shadow-2xl p-4 flex flex-col z-10 gap-4">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div className="flex flex-wrap gap-4 flex-1">
+            <div className="flex flex-wrap gap-4">
               {snapshot.players.map((p) => (
                 <div key={p.id} className="flex flex-col bg-black/50 px-4 py-3 rounded-lg border border-neutral-800 min-w-35">
                   <div className="flex items-center gap-2 mb-2">
@@ -100,9 +100,11 @@ export default function Board({ snapshot, tickRate = 150 }) {
               ))}
             </div>
 
+            {snapshot.phase === 'paused' && <div className="text-2xl font-semibold uppercase">Paused by {snapshot.pausedBy.name}</div>}
+
             <div className="flex flex-col items-end whitespace-nowrap bg-black/50 px-5 py-3 rounded-lg border border-neutral-800">
               <span className="text-neutral-500 uppercase text-xs font-bold tracking-widest mb-1 flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${snapshot.phase === 'playing' ? 'bg-green-500 animate-pulse' : 'bg-neutral-500'}`} />
+                <span className={`w-2 h-2 rounded-full ${snapshot.phase === 'playing' ? 'bg-green-500 animate-pulse' : snapshot.phase === 'paused' ? 'bg-amber-400' : 'bg-neutral-500'}`} />
                 Game Timer
               </span>
               <span className="font-mono text-3xl text-neutral-100 font-bold">
@@ -112,7 +114,7 @@ export default function Board({ snapshot, tickRate = 150 }) {
           </div>
         </div>
 
-        <div className="flex-1 w-full max-w-5xl bg-neutral-950 border border-t-0 border-neutral-800 rounded-b-2xl shadow-2xl z-10 flex min-h-0 overflow-hidden">
+        <div className="flex-1 w-full max-w-7xl  bg-neutral-950 border border-t-0 border-neutral-800 rounded-b-2xl shadow-2xl z-10 flex min-h-0 overflow-hidden">
           <div className="w-full h-full flex items-center justify-center p-4">
             <div
               ref={containerRef}

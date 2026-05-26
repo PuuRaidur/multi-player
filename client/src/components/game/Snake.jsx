@@ -33,57 +33,57 @@ export default function Snake({ player, grid, cellW, cellH, tickRate = 150 }) {
     dataRef.current = { player, grid, cellW, cellH, tickRate };
   }, [player, grid, cellW, cellH, tickRate]);
 
-  /**
+  useEffect(() => {
+    /**
    * Calculates `border-radius` for a snake segment.
    * @param {number} segmentIdx segment index (0 is snake's head)
    * @param {Player} player player
    * @returns {string} `border-radius` CSS value
    */
-  const calculateBorderRadius = (segmentIdx, player) => {
-    const min = '15%';
-    const max = '40%';
+    const calculateBorderRadius = (segmentIdx, player) => {
+      const min = '15%';
+      const max = '40%';
 
-    /** @type {{ [x in Direction]: string }} */
-    const rounded = {
-      up: `${max} ${max} ${min} ${min}`,
-      down: `${min} ${min} ${max} ${max}`,
-      left: `${max} ${min} ${min} ${max}`,
-      right: `${min} ${max} ${max} ${min}`,
-    };
+      /** @type {{ [x in Direction]: string }} */
+      const rounded = {
+        up: `${max} ${max} ${min} ${min}`,
+        down: `${min} ${min} ${max} ${max}`,
+        left: `${max} ${min} ${min} ${max}`,
+        right: `${min} ${max} ${max} ${min}`,
+      };
 
-    // Snake head
-    if (player.snake.length === 1 || segmentIdx === 0) {
-      return rounded[player.direction];
-    }
-
-    // Snake tail
-    if (segmentIdx === player.snake.length - 1) {
-      const current = segmentsRef.current[segmentIdx];
-      const next = player.snake[segmentIdx];
-      let moveX = next.x - current.x;
-      let moveY = next.y - current.y;
-      if (Math.abs(moveX) > grid.width / 2) moveX = -Math.sign(moveX);
-      if (Math.abs(moveY) > grid.height / 2) moveY = -Math.sign(moveY);
-
-      // If tail is not moving, use diff with previous segment
-      if (Math.abs(moveX) < 0.05 && Math.abs(moveY) < 0.05) {
-        const prev = player.snake[segmentIdx - 1];
-        moveX = prev.x - current.x;
-        moveY = prev.y - current.y;
+      // Snake head
+      if (player.snake.length === 1 || segmentIdx === 0) {
+        return rounded[player.direction];
       }
 
-      if (moveY < 0) return rounded.down;
-      else if (moveY > 0) return rounded.up;
-      else if (moveX < 0) return rounded.right;
-      else if (moveX > 0) return rounded.left;
-      else return max;
+      // Snake tail
+      if (segmentIdx === player.snake.length - 1) {
+        const current = segmentsRef.current[segmentIdx];
+        const next = player.snake[segmentIdx];
+        let moveX = next.x - current.x;
+        let moveY = next.y - current.y;
+        if (Math.abs(moveX) > grid.width / 2) moveX = -Math.sign(moveX);
+        if (Math.abs(moveY) > grid.height / 2) moveY = -Math.sign(moveY);
+
+        // If tail is not moving, use diff with previous segment
+        if (Math.abs(moveX) < 0.05 && Math.abs(moveY) < 0.05) {
+          const prev = player.snake[segmentIdx - 1];
+          moveX = prev.x - current.x;
+          moveY = prev.y - current.y;
+        }
+
+        if (moveY < 0) return rounded.down;
+        else if (moveY > 0) return rounded.up;
+        else if (moveX < 0) return rounded.right;
+        else if (moveX > 0) return rounded.left;
+        else return max;
+      }
+
+      // Snake body
+      return min;
     }
 
-    // Snake body
-    return min;
-  }
-
-  useEffect(() => {
     let animationId = 0;
     let lastTime = performance.now();
 
@@ -149,19 +149,24 @@ export default function Snake({ player, grid, cellW, cellH, tickRate = 150 }) {
           s.y = segment.y;
         }
 
-        const borderRadius = calculateBorderRadius(i, player);
         const ssW = cellW * 0.9;
         const ssH = cellH * 0.9;
+        const left = `${s.x * cellW + (cellW - ssW) / 2 - 0.5}px`;
+        const top = `${s.y * cellH + (cellH - ssH) / 2 - 0.5}px`;
+        const width = `${ssW + 1}px`;
+        const height = `${ssH + 1}px`;
+        const filter = i == 0 ? 'brightness(120%)' : 'none';
+        const borderRadius = calculateBorderRadius(i, player);
 
-        s.el.style.left = `${s.x * cellW + (cellW - ssW) / 2 - 0.5}px`;
-        s.el.style.top = `${s.y * cellH + (cellH - ssH) / 2 - 0.5}px`;
-        s.el.style.width = `${ssW + 1}px`;
-        s.el.style.height = `${ssH + 1}px`;
-        s.el.style.backgroundColor = color;
-        s.el.style.filter = i == 0 ? 'brightness(120%)' : 'none';
-        s.el.style.opacity = opacity;
-        s.el.style.boxShadow = boxShadow;
-        s.el.style.borderRadius = borderRadius;
+        if (s.el.style.left != left) s.el.style.left = left;
+        if (s.el.style.top != top) s.el.style.top = top;
+        if (s.el.style.width != width) s.el.style.width = width;
+        if (s.el.style.height != height) s.el.style.height = height;
+        if (s.el.style.backgroundColor != color) s.el.style.backgroundColor = color;
+        if (s.el.style.filter != filter) s.el.style.filter = filter;
+        if (s.el.style.opacity != opacity) s.el.style.opacity = opacity;
+        if (s.el.style.boxShadow != boxShadow) s.el.style.boxShadow = boxShadow;
+        if (s.el.style.borderRadius != borderRadius) s.el.style.borderRadius = borderRadius;
       });
 
       // Render Head Setup
@@ -193,7 +198,7 @@ export default function Snake({ player, grid, cellW, cellH, tickRate = 150 }) {
 
     animationId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationId);
-  }, []);
+  }, [grid.width, grid.height]);
 
   if (!player.snake || player.snake.length === 0) return null;
 
