@@ -1,13 +1,14 @@
 import './Button.css'
 
-export default function Button({ text, hook, variant = 'primary' }) {
+export default function Button({ text, hook, variant, className = '', children, type = 'button', ...rest }) {
   return (
-    <button 
+    <button
+      type={type}
+      className={[variant && `button-${variant}`, className].filter(Boolean).join(' ')}
+      {...rest}
       onClick={hook}
-      type="button"
-      className={`button-${variant}`}
     >
-      {text}
+      {children || text}
     </button>
   )
 }

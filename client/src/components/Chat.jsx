@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useGame } from '../hooks/useGame'
+import Button from './Button'
 import './Chat.css'
 
 export default function Chat() {
@@ -31,9 +32,9 @@ export default function Chat() {
 
   if (!open) {
     return (
-      <button className="chat-toggle" onClick={() => setOpen(true)}>
+      <Button className="chat-toggle" hook={() => setOpen(true)}>
         Chat
-      </button>
+      </Button>
     )
   }
 
@@ -41,7 +42,7 @@ export default function Chat() {
     <div className="chat-panel">
       <div className="chat-header">
         <span className="chat-header-title">Chat</span>
-        <button className="chat-header-close" onClick={() => setOpen(false)}>✕</button>
+        <Button className="chat-header-close" hook={() => setOpen(false)}>✕</Button>
       </div>
 
       <MessageList messages={chatMessages} myId={myId} listRef={listRef} />
@@ -56,7 +57,7 @@ export default function Chat() {
           maxLength={120}
           className="chat-input"
         />
-        <button type="submit" className="chat-send">Send</button>
+        <Button type="submit" className="chat-send">Send</Button>
       </form>
     </div>
   )

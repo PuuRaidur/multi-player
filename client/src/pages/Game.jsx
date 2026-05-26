@@ -4,6 +4,7 @@ import { useGame } from '../hooks/useGame'
 import Board from '../components/game/Board'
 import Menu from '../components/Menu'
 import Chat from '../components/Chat'
+import Button from '../components/Button'
 import { useKeyboardControls } from '../hooks/useKeyboardControls'
 import { useSounds } from '../hooks/useSounds'
 import './Game.css'
@@ -38,12 +39,12 @@ export default function GamePage() {
     <div className="game-container">
       <Board snapshot={snapshot} tickRate={100} />
 
-      <button
+      <Button
         className="overlay-btn top"
-        onClick={() => setMenuOpen(prev => !prev)}
+        hook={() => setMenuOpen(prev => !prev)}
       >
         Menu
-      </button>
+      </Button>
 
       <Chat />
 

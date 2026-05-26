@@ -97,13 +97,13 @@ function JoinForm({ name, setName, onSubmit, error, clearError }) {
         </div>
       )}
 
-      <button
+      <Button
         type="submit"
         className="join-button"
         disabled={name.trim().length < 2}
       >
         Join Lobby
-      </button>
+      </Button>
     </form>
   )
 }

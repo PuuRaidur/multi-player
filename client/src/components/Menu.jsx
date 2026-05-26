@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGame } from '../hooks/useGame'
 import { setVolume } from '../hooks/useSounds'
+import Button from './Button'
 import './Menu.css'
 
 export default function Menu({ phase, onPause, onResume, onQuit, onClose }) {
@@ -24,22 +25,22 @@ export default function Menu({ phase, onPause, onResume, onQuit, onClose }) {
 
         <div className="menu-buttons">
           {isPaused ? (
-            <button className="menu-btn resume" onClick={() => { onResume(); onClose() }}>
+            <Button className="menu-btn resume" hook={() => { onResume(); onClose() }}>
               Resume Game
-            </button>
+            </Button>
           ) : (
-            <button className="menu-btn pause" onClick={() => { onPause(); onClose() }}>
+            <Button className="menu-btn pause" hook={() => { onPause(); onClose() }}>
               Pause Game
-            </button>
+            </Button>
           )}
 
-          <button className="menu-btn quit" onClick={() => { onQuit(); onClose() }}>
+          <Button className="menu-btn quit" hook={() => { onQuit(); onClose() }}>
             Quit Game
-          </button>
+          </Button>
 
-          <button className="menu-btn close" onClick={onClose}>
+          <Button className="menu-btn close" hook={onClose}>
             Close
-          </button>
+          </Button>
         </div>
 
         <div className="menu-volume">

@@ -1,7 +1,7 @@
 .chat-toggle {
   position: absolute;
-  bottom: 1rem;
-  left: 5rem;
+  top: 1rem;
+  right: 1rem;
   z-index: 30;
   background: #262626;
   color: white;
@@ -26,8 +26,8 @@
 
 .chat-panel {
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
+  top: 1rem;
+  right: 1rem;
   z-index: 30;
   width: 18rem;
   background: #171717;
