@@ -14,8 +14,6 @@ export const GAME_CONFIG = Object.freeze({
   tickMs: 100,
   broadcastMs: 50,
   respawnInvulnerableMs: 1500,
-  speedBoostDurationMs: 10_000,
-  speedBoostMultiplier: 1.5,
   normalFoodScore: 10,
   bonusFoodScore: 25,
   tailBiteScore: 20,
@@ -23,8 +21,7 @@ export const GAME_CONFIG = Object.freeze({
   normalFoodCount: 5,
   bonusFoodCount: 1,
   bonusFoodChance: 0.18,
-  extraLifePowerUpCount: 1,
-  speedBoostPowerUpCount: 1
+  extraLifePowerUpCount: 1
 });
 
 export const DIRECTIONS = Object.freeze({

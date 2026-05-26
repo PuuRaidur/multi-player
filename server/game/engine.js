@@ -60,7 +60,6 @@ export class SnakeGame {
       queuedDirection: "right",
       snake: [],
       invulnerableUntil: 0,
-      speedBoostUntil: 0,
       moveProgress: 0
     };
 
@@ -135,7 +134,6 @@ export class SnakeGame {
       player.lives = this.config.startingLives;
       player.out = false;
       player.invulnerableUntil = 0;
-      player.speedBoostUntil = 0;
       player.moveProgress = 0;
       this.respawnPlayer(player, true);
     }
@@ -171,7 +169,6 @@ export class SnakeGame {
       player.lives = this.config.startingLives;
       player.out = false;
       player.invulnerableUntil = 0;
-      player.speedBoostUntil = 0;
       player.moveProgress = 0;
       this.respawnPlayer(player, true);
     }
@@ -255,11 +252,10 @@ export class SnakeGame {
     const moveProgressPerTick = elapsedMs / this.config.tickMs;
     for (const player of this.players.values()) {
       if (!player.out && player.snake.length > 0) {
-        player.moveProgress += moveProgressPerTick * this.getPlayerSpeedMultiplier(player);
+        player.moveProgress += moveProgressPerTick;
       }
     }
 
-    // Move at most one grid cell per simulation tick so boosted snakes do not skip turn opportunities.
     if ([...this.players.values()].some((player) => !player.out && player.moveProgress >= 1)) {
       this.moveReadyPlayers();
     }
@@ -391,12 +387,6 @@ export class SnakeGame {
       return { label: "bonus food", sound: "bonus" };
     }
 
-    if (food.type === "speedBoost") {
-      player.speedBoostUntil = this.now() + this.config.speedBoostDurationMs;
-      player.moveProgress = Math.min(player.moveProgress, 1);
-      return { label: "a speed boost power-up", sound: "speedBoost" };
-    }
-
     if (food.type === "extraLife") {
       player.lives = Math.min(this.config.maxLives, player.lives + 1);
       return { label: "an extra life power-up", sound: "extraLife" };
@@ -467,7 +457,6 @@ export class SnakeGame {
     const normalCount = this.foods.filter((food) => food.type === "normal").length;
     const bonusCount = this.foods.filter((food) => food.type === "bonus").length;
     const extraLifeCount = this.foods.filter((food) => food.type === "extraLife").length;
-    const speedBoostCount = this.foods.filter((food) => food.type === "speedBoost").length;
 
     for (let i = normalCount; i < this.config.normalFoodCount; i += 1) {
       this.spawnFood("normal");
@@ -482,14 +471,6 @@ export class SnakeGame {
     for (let i = extraLifeCount; i < this.config.extraLifePowerUpCount; i += 1) {
       this.spawnFood("extraLife");
     }
-
-    for (let i = speedBoostCount; i < this.config.speedBoostPowerUpCount; i += 1) {
-      this.spawnFood("speedBoost");
-    }
-  }
-
-  getPlayerSpeedMultiplier(player) {
-    return this.now() < player.speedBoostUntil ? this.config.speedBoostMultiplier : 1;
   }
 
   spawnFood(type) {
@@ -659,8 +640,6 @@ export class SnakeGame {
         out: player.out,
         direction: player.direction,
         invulnerable: this.now() < player.invulnerableUntil,
-        speedBoostActive: this.now() < player.speedBoostUntil,
-        speedBoostRemainingMs: Math.max(0, player.speedBoostUntil - this.now()),
         snake: player.snake
       })),
       foods: this.foods,
