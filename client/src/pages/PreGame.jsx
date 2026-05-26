@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { useGame } from '../hooks/useGame'
 import Button from '../components/Button'
-import InputForm, { InputField } from '../components/Input'
+import InputField from '../components/InputField'
 import './PreGame.css'
 
 export default function PreGame() {
@@ -80,7 +80,7 @@ export default function PreGame() {
 
 function JoinForm({ name, setName, onSubmit, error, clearError }) {
   return (
-    <InputForm onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="join-form">
       <label>Choose your nickname</label>
       <InputField
         type="text"
@@ -104,7 +104,7 @@ function JoinForm({ name, setName, onSubmit, error, clearError }) {
       >
         Join Lobby
       </Button>
-      </InputForm>
+    </form>
   )
 }
 

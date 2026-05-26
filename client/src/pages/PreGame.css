@@ -70,7 +70,7 @@
   50% { opacity: 0.5; }
 }
 
-.input-form label {
+.join-form label {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useGame } from '../hooks/useGame'
 import Button from './Button'
-import { InputField } from './Input'
+import InputField from './InputField'
 import './Chat.css'
 
 export default function Chat({ open, onClose }) {
