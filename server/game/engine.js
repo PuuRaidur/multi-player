@@ -55,6 +55,7 @@ export class SnakeGame {
       lead: this.leadPlayerId === null,
       score: 0,
       lives: this.config.startingLives,
+      shieldCount: 0,
       out: false,
       direction: "right",
       queuedDirection: "right",
@@ -132,6 +133,7 @@ export class SnakeGame {
     for (const player of this.players.values()) {
       player.score = 0;
       player.lives = this.config.startingLives;
+      player.shieldCount = 0;
       player.out = false;
       player.invulnerableUntil = 0;
       player.moveProgress = 0;
@@ -167,6 +169,7 @@ export class SnakeGame {
       player.connected = true;
       player.score = 0;
       player.lives = this.config.startingLives;
+      player.shieldCount = 0;
       player.out = false;
       player.invulnerableUntil = 0;
       player.moveProgress = 0;
@@ -392,9 +395,9 @@ export class SnakeGame {
       return { label: "an extra life power-up", sound: "extraLife" };
     }
 
-    if (food.type === "invulnerability") {
-      player.invulnerableUntil = Math.max(player.invulnerableUntil, this.now() + this.config.invulnerabilityDurationMs);
-      return { label: "an invulnerability power-up", sound: "invulnerability" };
+    if (food.type === "shield") {
+      player.shieldCount = Math.min(this.config.maxShieldCount, player.shieldCount + 1);
+      return { label: "a shield power-up", sound: "shield" };
     }
 
     player.score += this.config.normalFoodScore;
@@ -402,6 +405,13 @@ export class SnakeGame {
   }
 
   applyCollision(player) {
+    if (player.shieldCount > 0) {
+      player.shieldCount -= 1;
+      this.addSystemMessage(`${player.name}'s shield blocked a crash.`);
+      this.emitEvent("sound", { name: "shieldBlock", playerId: player.id, playerName: player.name, shields: player.shieldCount });
+      return;
+    }
+
     player.lives -= 1;
     this.addSystemMessage(`${player.name} crashed and lost a life.`);
     this.emitEvent("sound", { name: "crash", playerId: player.id, playerName: player.name, lives: player.lives });
@@ -462,7 +472,7 @@ export class SnakeGame {
     const normalCount = this.foods.filter((food) => food.type === "normal").length;
     const bonusCount = this.foods.filter((food) => food.type === "bonus").length;
     const extraLifeCount = this.foods.filter((food) => food.type === "extraLife").length;
-    const invulnerabilityCount = this.foods.filter((food) => food.type === "invulnerability").length;
+    const shieldCount = this.foods.filter((food) => food.type === "shield").length;
 
     for (let i = normalCount; i < this.config.normalFoodCount; i += 1) {
       this.spawnFood("normal");
@@ -478,8 +488,8 @@ export class SnakeGame {
       this.spawnFood("extraLife");
     }
 
-    for (let i = invulnerabilityCount; i < this.config.invulnerabilityPowerUpCount; i += 1) {
-      this.spawnFood("invulnerability");
+    for (let i = shieldCount; i < this.config.shieldPowerUpCount; i += 1) {
+      this.spawnFood("shield");
     }
   }
 
@@ -647,6 +657,7 @@ export class SnakeGame {
         lead: player.id === this.leadPlayerId,
         score: player.score,
         lives: player.lives,
+        shieldCount: player.shieldCount,
         out: player.out,
         direction: player.direction,
         invulnerable: this.now() < player.invulnerableUntil,

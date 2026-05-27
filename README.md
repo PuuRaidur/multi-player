@@ -67,7 +67,7 @@ Share the generated HTTPS URL with players. The frontend can connect to that URL
 - Food gives 10 points.
 - Bonus food gives 25 points.
 - Extra life power-up gives +1 life up to the maximum lives limit.
-- Invulnerability power-up prevents life loss from collisions for 10 seconds.
+- Shield power-up blocks the next crash without losing a life.
 - Collision with a wall, own body, or another snake costs 1 life.
 - A player with lives remaining respawns.
 - A player with 0 lives is out.
@@ -169,7 +169,8 @@ Possible sound names:
 - `food`
 - `bonus`
 - `extraLife`
-- `invulnerability`
+- `shield`
+- `shieldBlock`
 - `tailBite`
 - `crash`
 - `out`

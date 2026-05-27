@@ -11,7 +11,7 @@ const testConfig = {
   normalFoodCount: 0,
   bonusFoodCount: 0,
   extraLifePowerUpCount: 0,
-  invulnerabilityPowerUpCount: 0
+  shieldPowerUpCount: 0
 };
 
 test("requires unique player names", () => {
@@ -92,22 +92,21 @@ test("extra life power-up increases lives without passing max lives", () => {
   assert.equal(player.lives, testConfig.maxLives);
 });
 
-test("invulnerability power-up prevents losing a life on collision", () => {
-  let now = 1000;
-  const game = new SnakeGame(testConfig, () => now);
+test("shield power-up blocks the next crash without losing a life", () => {
+  const game = new SnakeGame(testConfig);
   game.addPlayer("a", "Alex");
   game.addPlayer("b", "Berta");
   game.start("a");
 
   const player = game.players.get("a");
   const head = player.snake[0];
-  game.foods = [{ id: "shield1", type: "invulnerability", x: head.x + 1, y: head.y }];
+  game.foods = [{ id: "shield1", type: "shield", x: head.x + 1, y: head.y }];
 
   game.tick();
 
-  assert.equal(player.invulnerableUntil, now + testConfig.invulnerabilityDurationMs);
-  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").invulnerable, true);
-  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "invulnerability"), true);
+  assert.equal(player.shieldCount, 1);
+  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").shieldCount, 1);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "shield"), true);
 
   player.snake = [{ x: 0, y: 0 }];
   player.direction = "left";
@@ -115,9 +114,8 @@ test("invulnerability power-up prevents losing a life on collision", () => {
   game.tick();
 
   assert.equal(player.lives, testConfig.startingLives);
-
-  now += testConfig.invulnerabilityDurationMs + 1;
-  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").invulnerable, false);
+  assert.equal(player.shieldCount, 0);
+  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "shieldBlock"), true);
 });
 
 test("tail hunt mode rewards biting another snake tail", () => {
