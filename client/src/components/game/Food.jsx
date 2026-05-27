@@ -22,8 +22,8 @@ export default function Food({ food, cellW, cellH }) {
     className = 'bonus';
   } else if (food.type === 'extraLife') {
     className = 'extra-life';
-  } else if (food.type === 'invulnerability') {
-    className = 'invulnerability';
+  } else if (food.type === 'shield') {
+    className = 'shield';
   }
 
   const centerX = (food.x + 0.5) * cellW;

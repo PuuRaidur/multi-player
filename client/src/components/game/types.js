@@ -38,7 +38,7 @@
 
 /**
  * @typedef {Object} Food
- * @property {"normal"|"bonus"|"extraLife"|"invulnerability"} type Food type
+ * @property {"normal"|"bonus"|"extraLife"|"shield"} type Food type
  * @property {number} x X grid coordinate
  * @property {number} y Y grid coordinate
  */
