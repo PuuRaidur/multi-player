@@ -4,7 +4,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "install": "cd server && npm i && cd ../client && npm i",
+    "setup": "npm i && cd server && npm i && cd ../client && npm i",
     "serve": "node scripts/serve.js",
     "dev": "node scripts/dev.js"
   },
