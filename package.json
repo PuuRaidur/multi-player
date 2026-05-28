@@ -1,0 +1,15 @@
+{
+  "name": "multi-player",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "install": "cd server && npm i && cd ../client && npm i",
+    "serve": "node scripts/serve.js",
+    "dev": "node scripts/dev.js"
+  },
+  "packageManager": "pnpm@10.23.0",
+  "dependencies": {
+    "concurrently": "^10.0.0"
+  }
+}

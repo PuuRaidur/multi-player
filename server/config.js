@@ -1,5 +1,5 @@
 export const GAME_CONFIG = Object.freeze({
-  port: Number.parseInt(process.env.PORT || "3100", 10),
+  port: Number.parseInt(process.env.SNAKE_BACKEND_PORT || "3100", 10),
   host: process.env.HOST || "0.0.0.0",
   maxPlayers: 4,
   minPlayers: 2,
