@@ -34,6 +34,17 @@ test("only lead player can start the match", () => {
   assert.equal(game.phase, "playing");
 });
 
+test("lead player can start the match even when players are not ready", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+
+  const result = game.start("a");
+
+  assert.equal(result.ok, true);
+  assert.equal(game.phase, "playing");
+});
+
 test("paused snapshot includes the player who paused", () => {
   const game = new SnakeGame(testConfig);
   game.addPlayer("a", "Alex");
