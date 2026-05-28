@@ -45,6 +45,54 @@ test("lead player can start the match even when players are not ready", () => {
   assert.equal(game.phase, "playing");
 });
 
+test("lead player can change game mode in the lobby", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+
+  const result = game.setGameMode("a", "classic");
+
+  assert.equal(result.ok, true);
+  assert.equal(game.snapshot().gameMode, "classic");
+});
+
+test("non-lead player cannot change game mode", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+
+  const result = game.setGameMode("b", "classic");
+
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "Only the lead player can change game mode.");
+  assert.equal(game.snapshot().gameMode, "tailHunt");
+});
+
+test("game mode must be valid", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+
+  const result = game.setGameMode("a", "chaos");
+
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "Invalid game mode.");
+  assert.equal(game.snapshot().gameMode, "tailHunt");
+});
+
+test("game mode cannot be changed after match starts", () => {
+  const game = new SnakeGame(testConfig);
+  game.addPlayer("a", "Alex");
+  game.addPlayer("b", "Berta");
+  game.start("a");
+
+  const result = game.setGameMode("a", "classic");
+
+  assert.equal(result.ok, false);
+  assert.equal(result.error, "Game mode can only be changed in the lobby.");
+  assert.equal(game.snapshot().gameMode, "tailHunt");
+});
+
 test("paused snapshot includes the player who paused", () => {
   const game = new SnakeGame(testConfig);
   game.addPlayer("a", "Alex");

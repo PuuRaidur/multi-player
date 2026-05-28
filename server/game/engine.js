@@ -7,9 +7,12 @@ const PHASES = Object.freeze({
   ended: "ended"
 });
 
+const GAME_MODES = Object.freeze(["classic", "tailHunt"]);
+
 export class SnakeGame {
   constructor(config = GAME_CONFIG, now = () => Date.now()) {
     this.config = config;
+    this.gameMode = config.gameMode;
     this.now = now;
     this.phase = PHASES.lobby;
     this.players = new Map();
@@ -105,6 +108,25 @@ export class SnakeGame {
     player.ready = Boolean(ready);
     this.addSystemMessage(`${player.name} is ${player.ready ? "ready" : "not ready"}.`);
     return true;
+  }
+
+  setGameMode(clientId, mode) {
+    const player = this.players.get(clientId);
+    if (this.phase !== PHASES.lobby) {
+      return { ok: false, error: "Game mode can only be changed in the lobby." };
+    }
+
+    if (!player || clientId !== this.leadPlayerId) {
+      return { ok: false, error: "Only the lead player can change game mode." };
+    }
+
+    if (!GAME_MODES.includes(mode)) {
+      return { ok: false, error: "Invalid game mode." };
+    }
+
+    this.gameMode = mode;
+    this.addSystemMessage(`${player.name} changed game mode to ${mode}.`);
+    return { ok: true };
   }
 
   start(clientId) {
@@ -352,7 +374,7 @@ export class SnakeGame {
   }
 
   findTailBite(attackerId, target) {
-    if (this.config.gameMode !== "tailHunt") {
+    if (this.gameMode !== "tailHunt") {
       return null;
     }
 
@@ -621,6 +643,7 @@ export class SnakeGame {
     this.foods = [];
     this.messages = [];
     this.leadPlayerId = null;
+    this.gameMode = this.config.gameMode;
     this.startedAt = null;
     this.pausedAt = null;
     this.pausedBy = null;
@@ -638,7 +661,7 @@ export class SnakeGame {
       type: "state",
       phase: this.phase,
       ...(this.phase === PHASES.paused ? { pausedBy: this.pausedBy } : {}),
-      gameMode: this.config.gameMode,
+      gameMode: this.gameMode,
       grid: {
         width: this.config.gridWidth,
         height: this.config.gridHeight

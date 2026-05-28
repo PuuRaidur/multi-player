@@ -53,6 +53,15 @@ io.on("connection", (socket) => {
     broadcastState();
   });
 
+  socket.on("setGameMode", (payload) => {
+    const result = game.setGameMode(socket.id, payload?.mode);
+    if (!result.ok) {
+      socket.emit("errorMessage", { message: result.error });
+      return;
+    }
+    broadcastState();
+  });
+
   socket.on("start", () => {
     const result = game.start(socket.id);
     if (!result.ok) {

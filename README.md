@@ -106,6 +106,12 @@ Ready/unready:
 socket.emit("ready", { ready: true });
 ```
 
+Change game mode:
+
+```js
+socket.emit("setGameMode", { mode: "classic" });
+```
+
 Lead starts match:
 
 ```js
