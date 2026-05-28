@@ -4,7 +4,7 @@ Real-time multiplayer snake battle for 2–4 players. Eat food, grab power-ups, 
 
 ## Quick Start
 
-Visit our [Snake Game](`http://dovaogedot.online`)
+Visit http://dovaogedot.online
 
 Or if you want to set it up yourself:
 
