@@ -35,6 +35,7 @@ export function GameProvider({ children }) {
 
   const join = useCallback((name) => { socket.emit('join', { name }) }, [])
   const setReady = useCallback((ready) => { socket.emit('ready', { ready }) }, [])
+  const setGameMode = useCallback((mode) => { socket.emit('setGameMode', { mode }) }, [])
   const startGame = useCallback(() => { socket.emit('start') }, [])
   const pause = useCallback(() => { socket.emit('pause') }, [])
   const resume = useCallback(() => { socket.emit('resume') }, [])
@@ -58,6 +59,7 @@ export function GameProvider({ children }) {
       connected: socket.connected,
       join,
       setReady,
+      setGameMode,
       startGame,
       pause,
       resume,

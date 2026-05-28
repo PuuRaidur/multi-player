@@ -1,201 +1,136 @@
-# Snake Food Battle - Backend
+# Snake Food Battle 🐍
 
-Real-time multiplayer backend for a DOM-rendered browser game. This part owns player joining, Socket.IO networking, match state, scoring, timer, lives, food spawning, collisions, pause/resume/quit messages, and winner selection.
+Real-time multiplayer snake battle for 2–4 players. Compete in the same arena — eat food to grow, grab power-ups, dodge collisions, and hunt tails. The last snake standing (or the highest scorer) wins.
 
-## Setup
+## Quick Start
 
-Requirements:
-
-- Node.js 18 or newer
-
-Install dependencies:
+### Server
 
 ```bash
+cd server
 npm install
-```
-
-Run the server:
-
-```bash
 npm start
 ```
 
-Default URL:
+Default: `http://localhost:3100`
 
-```text
-http://localhost:3100
-```
-
-Health check:
-
-```text
-GET /health
-```
-
-Socket.IO endpoint:
-
-```text
-http://localhost:3100
-```
-
-## Internet Access For Other Players
-
-The server listens on `0.0.0.0`, so it can accept traffic from outside your computer if the port is exposed.
-
-For a simple review/demo, run one of these in a separate terminal:
+### Client
 
 ```bash
-ngrok http 3100
+cd client
+npm install
+npm start
 ```
 
-or:
+Default: `http://localhost:5173`
 
-```bash
-cloudflared tunnel --url http://localhost:3100
+Open the client URL in multiple browser tabs to play. Players on other devices can connect to `http://<your-ip>:5173`.
+
+## Game Rules
+
+- 2–4 players join a lobby. Names must be unique.
+- The first player to join becomes the **lead** — only they can start the match or change game mode.
+- Each player starts with **3 lives** and a full-length snake.
+- Matches last **180 seconds**.
+- Crashing into a wall, your own body, or another snake costs **1 life**. Players with lives remaining respawn; players at 0 lives are out.
+- Match ends when the timer runs out or only one player remains. The winner is the last player alive, or the highest scorer if time expires.
+
+### Food & Pickups
+
+| Emoji | Type | Effect |
+|-------|------|--------|
+| 🍊 | **Normal Food** | +10 points. Orange glow. |
+| 🥝 | **Bonus Food** | +25 points. Green glow. Spawns periodically. |
+| ❤️ | **Extra Life** | +1 life (up to max). Red glow. |
+| 🛡️ | **Shield** | Blocks the next crash without losing a life. Cyan glow. |
+
+### Game Modes
+
+| Mode | Description |
+|------|-------------|
+| **Classic** | Standard snake — all collisions cost a life. |
+| **Tail Hunt** 🎯 | Biting another player's tail gives **+20 points** and removes one tail segment from the defender. |
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| Arrow keys / WASD | Move your snake |
+| `Escape` | Open / close the in-game menu |
+| Menu button | Pause, resume, or quit the match |
+| Chat button | Send messages to other players |
+
+## Architecture
+
 ```
+client/              React + Vite + Tailwind CSS
+  src/
+    components/      Shared UI (Button, InputField, Menu, Chat)
+    components/game/ Game rendering (Board, Snake, Food, Grid, EndScreen)
+    pages/           PreGame (lobby), Game (play field)
+    hooks/           useGame, useKeyboardControls, useSounds
+    GameProvider.jsx Socket.IO event wiring and shared state
+    socket.js        Socket.IO client setup
 
-Share the generated HTTPS URL with players. The frontend can connect to that URL with the Socket.IO client.
+server/              Node.js + Socket.IO
+    server.js        Socket.IO event handlers, HTTP server
+    game/engine.js   Game state machine, collision, scoring, food spawning
+    config.js        Tunable game parameters (grid size, duration, lives, etc.)
 
-## Game Rules Implemented
-
-- 2-4 players can join a lobby.
-- Player names must be unique.
-- The first player is the lead player.
-- Only the lead player can start the match.
-- Every player starts with 3 lives.
-- Match duration is 180 seconds.
-- Food gives 10 points.
-- Bonus food gives 25 points.
-- Extra life power-up gives +1 life up to the maximum lives limit.
-- Shield power-up blocks the next crash without losing a life.
-- Collision with a wall, own body, or another snake costs 1 life.
-- A player with lives remaining respawns.
-- A player with 0 lives is out.
-- The match ends when the timer reaches 0 or only one player remains alive.
-- Winner is the remaining player, or the highest score when time expires.
-- Pause, resume, and quit broadcast a system message naming the player who did it.
-- Tail Hunt mode is enabled by default: biting another player's tail gives 20 points and removes one tail segment.
+test/                Vitest engine tests
+```
 
 ## Socket.IO Protocol
-
-Install the client package in the frontend project:
-
-```bash
-npm install socket.io-client
-```
 
 Connect from the browser:
 
 ```js
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3100");
+import { io } from 'socket.io-client'
+const socket = io('http://localhost:3100')
 ```
 
-### Client To Server
+### Client → Server
 
-Join:
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `join` | `{ name }` | Join the lobby |
+| `ready` | `{ ready: bool }` | Toggle ready status |
+| `setGameMode` | `{ mode }` | Change game mode (`classic` / `tailHunt`) — lead only |
+| `start` | — | Start the match — lead only |
+| `input` | `{ direction }` | Move direction (`up`, `down`, `left`, `right`) |
+| `pause` | — | Pause the match |
+| `resume` | — | Resume the match |
+| `quit` | — | Leave the match |
+| `chat` | `{ text }` | Send a chat message |
 
-```js
-socket.emit("join", { name: "Mia" });
-```
+### Server → Client
 
-Ready/unready:
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `welcome` | `{ id, config }` | Sent on connection with player ID and server config |
+| `state` | `snapshot` | Periodic game state snapshot (phase, players, foods, scores, lives, timer, messages) |
+| `errorMessage` | `{ message }` | Action validation error |
+| `sound` | `{ name, ... }` | Sound cue (`start`, `food`, `bonus`, `crash`, `tailBite`, `extraLife`, `shield`, `out`, `end`, etc.) |
+| `chat` | `{ playerId, name, text, createdAt }` | Received chat message |
 
-```js
-socket.emit("ready", { ready: true });
-```
+## Commands
 
-Change game mode:
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start the server / client (client binds on all interfaces for LAN access) |
+| `npm run dev` | Start the client in local-only mode |
+| `npm run build` | Build the client for production |
+| `npm test` | Run server engine tests |
+| `npm run lint` | Run ESLint |
 
-```js
-socket.emit("setGameMode", { mode: "classic" });
-```
+## Internet Access
 
-Lead starts match:
-
-```js
-socket.emit("start");
-```
-
-Move:
-
-```js
-socket.emit("input", { direction: "up" });
-```
-
-Menu actions:
-
-```js
-socket.emit("pause");
-socket.emit("resume");
-socket.emit("quit");
-```
-
-Chat bonus:
-
-```js
-socket.emit("chat", { text: "Nice dodge!" });
-```
-
-### Server To Client
-
-Welcome:
-
-```js
-socket.on("welcome", ({ id, config }) => {});
-```
-
-State snapshot:
-
-```js
-socket.on("state", (state) => {
-  // render phase, players, foods, scores, lives, timer, and winner
-});
-```
-
-System messages are included in each `state.messages` array:
-
-```json
-{ "type": "system", "text": "Mia paused the game.", "createdAt": 1778432400000 }
-```
-
-Sound cue:
-
-```js
-socket.on("sound", ({ name, playerId, playerName }) => {});
-```
-
-Possible sound names:
-
-- `start`
-- `pause`
-- `resume`
-- `quit`
-- `food`
-- `bonus`
-- `extraLife`
-- `shield`
-- `shieldBlock`
-- `tailBite`
-- `crash`
-- `out`
-- `end`
-
-Error:
-
-```js
-socket.on("errorMessage", ({ message }) => {});
-```
-
-## Frontend Notes
-
-The frontend should render with DOM elements only. Use `requestAnimationFrame` for 60 FPS visual updates and interpolate between server snapshots if desired.
-
-The server sends authoritative snapshots regularly. Frontend movement keys should emit `input` immediately on keydown and avoid sending repeated identical directions every frame.
-
-## Tests
+The server listens on `0.0.0.0:3100` by default. To share the game over the internet:
 
 ```bash
-npm test
+ngrok http 3100
+# or
+cloudflared tunnel --url http://localhost:3100
 ```
+
+Set the `VITE_SERVER_URL` environment variable in the client to the generated HTTPS URL before starting it.

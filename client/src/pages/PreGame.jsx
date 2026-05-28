@@ -6,7 +6,7 @@ import InputField from '../components/InputField'
 import './PreGame.css'
 
 export default function PreGame() {
-  const { snapshot, myPlayer, isLead, error, clearError, join, setReady, startGame, connected } = useGame()
+  const { snapshot, myPlayer, isLead, error, clearError, join, setReady, setGameMode, startGame, connected } = useGame()
   const navigate = useNavigate()
   const [name, setName] = useState('')
 
@@ -34,8 +34,7 @@ export default function PreGame() {
   }
 
   const totalConnected = snapshot?.players.filter(p => p.connected).length || 0
-  const readyCount = snapshot?.players.filter(p => p.connected && p.ready).length || 0
-  const canStart = isLead && totalConnected >= 2 && readyCount >= 2
+  const canStart = isLead && totalConnected >= 2
 
   if (!connected) {
     return (
@@ -67,9 +66,9 @@ export default function PreGame() {
             isLead={isLead}
             canStart={canStart}
             totalConnected={totalConnected}
-            readyCount={readyCount}
             onReady={handleReadyToggle}
             onStart={handleStart}
+            onSetGameMode={setGameMode}
           />
         )}
 
@@ -108,7 +107,8 @@ function JoinForm({ name, setName, onSubmit, error, clearError }) {
   )
 }
 
-function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, readyCount, onReady, onStart }) {
+function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, onReady, onStart, onSetGameMode }) {
+  const currentMode = snapshot?.gameMode || 'classic'
 
   return (
     <div className="lobby">
@@ -117,6 +117,26 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, re
         <p className="sub">Logged in as</p>
         <p className="name">{myPlayer.name}</p>
       </div>
+
+      {isLead && (
+        <div className="mode-selector">
+          <label>Game Mode</label>
+          <div className="mode-options">
+            <Button
+              className={currentMode === 'classic' ? 'mode-active' : ''}
+              onClick={() => onSetGameMode('classic')}
+            >
+              Classic
+            </Button>
+            <Button
+              className={currentMode === 'tailHunt' ? 'mode-active' : ''}
+              onClick={() => onSetGameMode('tailHunt')}
+            >
+              Tail Hunt
+            </Button>
+          </div>
+        </div>
+      )}
 
       <section className="players-section">
         <div className="players-header">
@@ -154,11 +174,7 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, re
         {isLead && !canStart && (
           <div className="waiting-hint">
             <div className="waiting-dot" />
-            <p>
-              {totalConnected < 2
-                ? 'Waiting for more players to join...'
-                : `Waiting for ${2 - readyCount} more player${2 - readyCount === 1 ? '' : 's'} to ready up...`}
-            </p>
+            <p>Waiting for more players to join...</p>
           </div>
         )}
       </div>

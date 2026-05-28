@@ -142,6 +142,48 @@
   font-size: 1.125rem;
 }
 
+.mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mode-selector label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a3a3a3;
+  font-weight: 500;
+}
+
+.mode-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.mode-options button {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: #262626;
+  color: #a3a3a3;
+  border: 1px solid #404040;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-options button:hover {
+  background: #404040;
+  color: white;
+}
+
+.mode-options .mode-active {
+  background: #22c55e;
+  color: white;
+  border-color: #22c55e;
+}
+
 .players-section {
   display: flex;
   flex-direction: column;
