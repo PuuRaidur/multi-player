@@ -23,7 +23,7 @@ npm run serve
 npm run dev
 ```
 
-Server listens on `0.0.0.0:3100`. To share without a public IP:
+Server listens on `0.0.0.0:3100`. To share without a public IP with Ngrok/Cloudflared:
 
 ```bash
 # Create URL
