@@ -4,12 +4,35 @@ Real-time multiplayer snake battle for 2–4 players. Eat food, grab power-ups, 
 
 ## Quick Start
 
+Visit our [Snake Game](`http://dovaogedot.online`)
+
+Or if you want to set it up yourself:
+
 ```bash
-cd client && npm install && npm run build
-cd ../server && npm install && npm start
+# Setup
+npm run setup
 ```
 
-Open **`http://localhost:3100`** — the server serves both the game API and the built client on a single port. Share the URL with anyone to play together.
+```bash
+# Production — build client first, then start server
+npm run serve
+```
+
+```bash
+# Development — runs server + Vite dev server in parallel
+npm run dev
+```
+
+Server listens on `0.0.0.0:3100`. To share without a public IP:
+
+```bash
+# Create URL
+ngrok http 3100
+# or
+cloudflared tunnel --url http://localhost:3100
+```
+
+Share the generated URL — no extra setup needed.
 
 ## Game Rules
 
@@ -38,30 +61,20 @@ Open **`http://localhost:3100`** — the server serves both the game API and the
 | Key | Action |
 |-----|--------|
 | Arrow keys / WASD | Move |
-| Escape | Menu |
+| Escape | Toggle menu |
 | Menu / Chat buttons | Pause, quit, chat |
 
 ## Commands
 
 | Directory | Command | Description |
 |-----------|---------|-------------|
+| root | `npm run serve` | Builds client & starts server (port 80) |
+| root | `npm run dev` | Server (3100) + Vite dev server (5173) |
 | `server/` | `npm start` | Start game server on `0.0.0.0:3100` |
-| `client/` | `npm run build` | Build client for production |
-| `client/` | `npm start` | Dev server (network: `http://<ip>:5173`) |
-| `client/` | `npm run dev` | Dev server (local: `http://localhost:5173`) |
 | `server/` | `npm test` | Run engine tests |
-
-## Internet Access
-
-Server listens on `0.0.0.0:3100`. To share without a public IP:
-
-```bash
-ngrok http 3100
-# or
-cloudflared tunnel --url http://localhost:3100
-```
-
-Share the generated URL — no extra setup needed.
+| `client/` | `npm run build` | Build client for production |
+| `client/` | `npm run dev` | Vite dev server (`localhost:5173`) |
+| `client/` | `npm start` | Vite dev server (`network`) |
 
 ## Socket.IO Protocol
 
