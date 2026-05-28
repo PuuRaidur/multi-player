@@ -29,7 +29,7 @@ Server listens on `0.0.0.0:3100`. To share without a public IP:
 # Create URL
 ngrok http 3100
 # or
-cloudflared tunnel --url http://0.0.0.0:3100
+cloudflared tunnel --url http://localhost:3100
 ```
 
 Share the generated URL — no extra setup needed.
