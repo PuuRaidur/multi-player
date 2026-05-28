@@ -4,7 +4,15 @@ Real-time multiplayer snake battle for 2–4 players. Compete in the same arena 
 
 ## Quick Start
 
-### Server
+### 1. Build the client
+
+```bash
+cd client
+npm install
+npm run build
+```
+
+### 2. Start the server
 
 ```bash
 cd server
@@ -12,19 +20,13 @@ npm install
 npm start
 ```
 
-Default: `http://localhost:3100`
+The server serves both the game API and the built client files on a single port.
 
-### Client
+### 3. Play
 
-```bash
-cd client
-npm install
-npm start
-```
+Open **`http://localhost:3100`** in your browser. Players on other devices (or different networks) can connect to the server's IP or URL — no separate client server needed.
 
-Default: `http://localhost:5173`
-
-Open the client URL in multiple browser tabs to play. Players on other devices can connect to `http://<your-ip>:5173`.
+During development, you can still run the client dev server separately (`cd client && npm run dev`) and set `VITE_SERVER_URL` to point at the game server.
 
 ## Game Rules
 
@@ -71,9 +73,10 @@ client/              React + Vite + Tailwind CSS
     hooks/           useGame, useKeyboardControls, useSounds
     GameProvider.jsx Socket.IO event wiring and shared state
     socket.js        Socket.IO client setup
+    dist/            Built client (auto-served by the server in production)
 
 server/              Node.js + Socket.IO
-    server.js        Socket.IO event handlers, HTTP server
+    server.js        Socket.IO event handlers, HTTP server, static file serving
     game/engine.js   Game state machine, collision, scoring, food spawning
     config.js        Tunable game parameters (grid size, duration, lives, etc.)
 
@@ -82,12 +85,14 @@ test/                Vitest engine tests
 
 ## Socket.IO Protocol
 
-Connect from the browser:
+When running the server standalone (dev mode), connect from the browser:
 
 ```js
 import { io } from 'socket.io-client'
 const socket = io('http://localhost:3100')
 ```
+
+In production the client is served from the same origin, so the URL is just the server address.
 
 ### Client → Server
 
@@ -115,17 +120,32 @@ const socket = io('http://localhost:3100')
 
 ## Commands
 
+### Server (`cd server`)
+
 | Command | Description |
 |---------|-------------|
-| `npm start` | Start the server / client (client binds on all interfaces for LAN access) |
-| `npm run dev` | Start the client in local-only mode |
+| `npm start` | Start the game server (serves API + built client on `0.0.0.0:3100`) |
+
+### Client (`cd client`)
+
+| Command | Description |
+|---------|-------------|
 | `npm run build` | Build the client for production |
-| `npm test` | Run server engine tests |
+| `npm start` | Start the Vite dev server (network-accessible at `http://<your-ip>:5173`) |
+| `npm run dev` | Start the Vite dev server (local-only at `http://localhost:5173`) |
 | `npm run lint` | Run ESLint |
+
+### Tests
+
+| Command | Description |
+|---------|-------------|
+| `npm test` | Run server engine tests (from `cd server`) |
 
 ## Internet Access
 
-The server listens on `0.0.0.0:3100` by default. To share the game over the internet:
+The server listens on `0.0.0.0:3100` by default and serves the full game on a single port. Anyone with the URL can join.
+
+To share the game over the internet without a public IP:
 
 ```bash
 ngrok http 3100
@@ -133,4 +153,4 @@ ngrok http 3100
 cloudflared tunnel --url http://localhost:3100
 ```
 
-Set the `VITE_SERVER_URL` environment variable in the client to the generated HTTPS URL before starting it.
+Share the generated HTTPS URL with players. No additional setup is needed — the client is served directly by the game server.

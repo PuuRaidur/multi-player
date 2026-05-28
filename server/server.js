@@ -1,20 +1,60 @@
 import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
 import { Server } from "socket.io";
 import { GAME_CONFIG } from "./config.js";
 import { SnakeGame } from "./game/engine.js";
 
 const game = new SnakeGame();
 
-// HTTP is only used for simple status checks; gameplay traffic uses Socket.IO.
+const clientDist = path.resolve("../client/dist");
+const hasClient = fs.existsSync(clientDist);
+
+const MIME = {
+  ".html": "text/html",
+  ".js": "text/javascript",
+  ".css": "text/css",
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".ico": "image/x-icon",
+  ".json": "application/json",
+  ".woff2": "font/woff2",
+};
+
 const server = http.createServer(async (request, response) => {
-  if (request.url === "/health") {
+  const url = new URL(request.url, `http://${request.headers.host}`);
+
+  if (url.pathname === "/health") {
     sendJson(response, 200, { ok: true, phase: game.phase, players: game.players.size });
     return;
   }
 
-  if (request.url === "/state") {
+  if (url.pathname === "/state") {
     sendJson(response, 200, game.snapshot());
     return;
+  }
+
+  if (hasClient) {
+    const filePath = url.pathname === "/" ? "/index.html" : url.pathname;
+    const diskPath = path.join(clientDist, filePath);
+
+    try {
+      const content = await fs.promises.readFile(diskPath);
+      const ext = path.extname(diskPath);
+      response.writeHead(200, { "content-type": MIME[ext] || "application/octet-stream" });
+      response.end(content);
+      return;
+    } catch {
+      // SPA fallback — serve index.html so client-side routing works
+      try {
+        const index = await fs.promises.readFile(path.join(clientDist, "index.html"));
+        response.writeHead(200, { "content-type": "text/html" });
+        response.end(index);
+        return;
+      } catch {
+        // fall through to 404
+      }
+    }
   }
 
   sendJson(response, 404, { error: "Not found" });
