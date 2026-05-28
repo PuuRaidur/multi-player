@@ -1,6 +1,6 @@
 import concurrently from 'concurrently';
 
-const port = process.env.SNAKE_PORT || '80';
+const port = process.env.SNAKE_PORT || '3000';
 
 concurrently([
   {
