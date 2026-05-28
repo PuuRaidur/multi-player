@@ -1,32 +1,6 @@
-.chat-toggle {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 30;
-  background: #262626;
-  color: white;
-  border: 1px solid #404040;
-  border-radius: 0.5rem;
-  font-family: ui-monospace, monospace;
-  font-size: 0.875rem;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.chat-toggle:hover {
-  background: #404040;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.chat-toggle:active {
-  transform: translateY(0);
-}
-
 .chat-panel {
-  position: absolute;
-  top: 1rem;
+  position: fixed;
+  top: 3.5rem;
   right: 1rem;
   z-index: 30;
   width: 18rem;

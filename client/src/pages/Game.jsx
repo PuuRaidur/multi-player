@@ -38,18 +38,17 @@ export default function GamePage() {
 
   return (
     <div className="game-container">
-      <Board snapshot={snapshot} tickRate={100} />
+      <div className="game-header">
+        <span className="game-title">🐍 Snake Food Battle</span>
+        <div className="game-header-actions">
+          <Button onClick={() => setChatOpen(true)}>Chat</Button>
+          <Button onClick={() => setMenuOpen(prev => !prev)}>Menu</Button>
+        </div>
+      </div>
 
-      <Button
-        className="overlay-btn top"
-        onClick={() => setMenuOpen(prev => !prev)}
-      >
-        Menu
-      </Button>
-
-      <Button className="chat-toggle" onClick={() => setChatOpen(true)}>
-        Chat
-      </Button>
+      <div className="flex-1 min-h-0">
+        <Board snapshot={snapshot} tickRate={100} />
+      </div>
 
       <Chat open={chatOpen} onClose={() => setChatOpen(false)} />
 
