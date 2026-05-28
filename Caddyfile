@@ -1,0 +1,7 @@
+{$DOMAIN:localhost} {
+    tls {$SSL_CERT} {$SSL_KEY}
+
+    reverse_proxy /socket.io* localhost:3100
+    reverse_proxy localhost:3000
+}
+
