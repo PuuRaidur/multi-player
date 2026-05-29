@@ -31,6 +31,8 @@ npm run dev
 npm run serve
 ```
 
+- Server should be available on **<http://localhost:3100>** also serving the client
+
 #### To share without a public IP using Ngrok/Cloudflared
 
 ```bash
