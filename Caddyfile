@@ -1,7 +1,7 @@
 {$DOMAIN:localhost} {
-    tls {$SSL_CERT} {$SSL_KEY}
+	# If vars are missing, it falls back to 'internal' automatic development SSL
+	tls {$SSL_CERT:internal} {$SSL_KEY:}
 
-    reverse_proxy /socket.io* localhost:3100
-    reverse_proxy localhost:3000
+	reverse_proxy /socket.io* localhost:3100
+	reverse_proxy localhost:3000
 }
-

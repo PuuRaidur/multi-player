@@ -1,15 +1,17 @@
 {
   "name": "multi-player",
   "version": "1.0.0",
-  "type": "module",
-  "main": "index.js",
   "scripts": {
-    "setup": "npm i && cd server && npm i && cd ../client && npm i",
-    "serve": "node scripts/serve.js",
-    "dev": "node scripts/dev.js"
-  },
-  "packageManager": "pnpm@10.23.0",
-  "dependencies": {
-    "concurrently": "^10.0.0"
+    "setup:client": "cd client && npm i",
+    "setup:server": "cd server && npm i",
+    "setup": "npm i && npm run setup:client && npm run setup:server",
+
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "dev": "npx concurrently -n \"server,client\" -c \"blue,green\" \"npm run dev:server\" \"npm run dev:client\"",
+
+    "build": "cd client && npm run build",
+    "serve": "npm run build && npx pm2 reload ecosystem.config.js",
+    "stop": "npx pm2 stop ecosystem.config.js"
   }
 }
