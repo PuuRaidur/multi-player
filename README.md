@@ -77,7 +77,8 @@ Application will run on your public IP or domain.
 
 - When a player crashes and loses all lives, they're **eliminated** and spectate the rest of the match.
 - The game **continues** for remaining players until the timer runs out or only one survives.
-- Once the match ends, **any player** can click **Play Again** to reset everyone to the lobby.
+- Quitting mid-game makes you a **spectator** — you watch until the match ends.
+- Once the match ends, **any player** can click **Play Again** to reset everyone to the lobby, or **Leave** to exit the game entirely.
 
 ### Food & Pickups
 
@@ -100,8 +101,10 @@ Application will run on your public IP or domain.
 | Key | Action |
 |-----|--------|
 | Arrow keys / WASD | Move |
-| Escape | Toggle menu |
-| Menu / Chat buttons | Pause, quit, chat |
+| Escape | Toggle pause menu |
+| Menu / Chat buttons | Pause, quit, chat, leave |
+
+System messages (player joins, quits, pause/resume) appear as **toast notifications** in the bottom-right corner.
 
 ## Commands
 
@@ -127,8 +130,9 @@ Application will run on your public IP or domain.
 | `setGameMode` | `{ mode }` | `classic` / `tailHunt` — lead only |
 | `start` | — | Lead only — all connected players must be ready |
 | `newRound` | — | Any player — resets ended match to lobby |
+| `leave` | — | Remove yourself from the game entirely (after match ends) |
 | `input` | `{ direction }` | `up` / `down` / `left` / `right` |
-| `pause` / `resume` / `quit` | — | Menu actions |
+| `pause` / `resume` / `quit` | — | Pause, resume, or quit to spectator |
 | `chat` | `{ text }` | Send message |
 
 ### Server → Client
