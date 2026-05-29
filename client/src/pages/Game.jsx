@@ -10,7 +10,7 @@ import { useSounds } from '../hooks/useSounds'
 import './Game.css'
 
 export default function GamePage() {
-  const { snapshot, pause, resume, quit } = useGame()
+  const { snapshot, pause, resume, quit, playAgain } = useGame()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
@@ -47,7 +47,7 @@ export default function GamePage() {
       </div>
 
       <div className="flex-1 min-h-0">
-        <Board snapshot={snapshot} tickRate={100} />
+        <Board snapshot={snapshot} tickRate={100} onPlayAgain={playAgain} />
       </div>
 
       <Chat open={chatOpen} onClose={() => setChatOpen(false)} />
@@ -58,6 +58,7 @@ export default function GamePage() {
           onPause={pause}
           onResume={resume}
           onQuit={() => { quit(); navigate('/') }}
+          onPlayAgain={playAgain}
           onClose={() => setMenuOpen(false)}
         />
       )}

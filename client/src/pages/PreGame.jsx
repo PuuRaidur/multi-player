@@ -34,7 +34,8 @@ export default function PreGame() {
   }
 
   const totalConnected = snapshot?.players.filter(p => p.connected).length || 0
-  const canStart = isLead && totalConnected >= 2
+  const allReady = snapshot?.players.filter(p => p.connected).every(p => p.ready) || false
+  const canStart = isLead && totalConnected >= 2 && allReady
 
   if (!connected) {
     return (
@@ -168,6 +169,7 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, on
             onClick={onStart}
             variant="primary"
             className='start'
+            disabled={!canStart}
           >
             Start Game
           </Button>
@@ -176,7 +178,7 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, on
         {isLead && !canStart && (
           <div className="waiting-hint">
             <div className="waiting-dot" />
-            <p>Waiting for more players to join...</p>
+            <p>{totalConnected < 2 ? 'Waiting for more players to join...' : 'Waiting for all players to ready up...'}</p>
           </div>
         )}
       </div>

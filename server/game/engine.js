@@ -142,6 +142,11 @@ export class SnakeGame {
       return { ok: false, error: `Need at least ${this.config.minPlayers} players.` };
     }
 
+    const connectedPlayers = [...this.players.values()].filter((p) => p.connected);
+    if (connectedPlayers.some((p) => !p.ready)) {
+      return { ok: false, error: "All players must be ready." };
+    }
+
     this.phase = PHASES.playing;
     this.startedAt = this.now();
     this.pausedAt = null;
@@ -172,8 +177,8 @@ export class SnakeGame {
       return { ok: false, error: "Match has not ended yet." };
     }
 
-    if (clientId !== this.leadPlayerId) {
-      return { ok: false, error: "Only the lead player can prepare a new round." };
+    if (!this.players.has(clientId)) {
+      return { ok: false, error: "You are not in this game." };
     }
 
     this.phase = PHASES.lobby;
