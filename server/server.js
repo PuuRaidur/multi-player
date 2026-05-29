@@ -137,6 +137,11 @@ io.on("connection", (socket) => {
     broadcastState();
   });
 
+  socket.on("leave", () => {
+    game.removePlayer(socket.id);
+    broadcastState();
+  });
+
   socket.on("quit", () => {
     game.quit(socket.id);
     broadcastGameEvents();

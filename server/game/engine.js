@@ -51,7 +51,7 @@ export class SnakeGame {
     const player = {
       id: clientId,
       name,
-      color: PLAYER_COLORS[this.players.size % PLAYER_COLORS.length],
+      color: this.pickUnusedColor(),
       number: this.nextPlayerNumber++,
       ready: false,
       connected: true,
@@ -83,9 +83,9 @@ export class SnakeGame {
       return;
     }
 
-    if (this.phase === PHASES.lobby) {
+    if (this.phase === PHASES.lobby || this.phase === PHASES.ended) {
       this.players.delete(clientId);
-      this.addSystemMessage(`${player.name} left the lobby.`);
+      this.addSystemMessage(`${player.name} left the ${this.phase === PHASES.lobby ? 'lobby' : 'game'}.`);
       this.assignLeadIfNeeded();
       return;
     }
@@ -191,9 +191,16 @@ export class SnakeGame {
     this.foods = [];
     this.spawnInitialFood();
 
+    // Remove players who disconnected during the match
+    for (const [id, player] of this.players) {
+      if (!player.connected) {
+        this.players.delete(id);
+      this.addSystemMessage(`${player.name} left the lobby.`);
+      }
+    }
+
     for (const player of this.players.values()) {
       player.ready = false;
-      player.connected = true;
       player.score = 0;
       player.lives = this.config.startingLives;
       player.shieldCount = 0;
@@ -248,7 +255,6 @@ export class SnakeGame {
     player.out = true;
     player.lives = 0;
     player.snake = [];
-    player.connected = false;
     this.addSystemMessage(`${player.name} quit the game.`);
     this.emitEvent("sound", { name: "quit", playerId: player.id, playerName: player.name });
     this.finishIfOnlyOneRemaining();
@@ -523,6 +529,11 @@ export class SnakeGame {
   spawnFood(type) {
     const cell = this.randomEmptyCell();
     this.foods.push({ id: `${type}_${this.now()}_${Math.random().toString(16).slice(2)}`, type, x: cell.x, y: cell.y });
+  }
+
+  pickUnusedColor() {
+    const used = new Set([...this.players.values()].map((p) => p.color));
+    return PLAYER_COLORS.find((c) => !used.has(c)) || PLAYER_COLORS[0];
   }
 
   randomEmptyCell(direction = "right") {
