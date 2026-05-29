@@ -6,15 +6,15 @@ import InputField from '../components/InputField'
 import './PreGame.css'
 
 export default function PreGame() {
-  const { snapshot, myPlayer, isLead, error, clearError, join, setReady, setGameMode, startGame, connected } = useGame()
+  const { snapshot, myPlayer, isLead, error, clearError, join, setReady, setGameMode, startGame, leaveLobby, connected } = useGame()
   const navigate = useNavigate()
   const [name, setName] = useState('')
 
   useEffect(() => {
-    if (snapshot && snapshot.phase !== 'lobby') {
+    if (snapshot && snapshot.phase !== 'lobby' && myPlayer) {
       navigate('/game')
     }
-  }, [snapshot, navigate])
+  }, [snapshot, navigate, myPlayer])
 
   function handleJoin(e) {
     e.preventDefault()
@@ -70,6 +70,7 @@ export default function PreGame() {
             onReady={handleReadyToggle}
             onStart={handleStart}
             onSetGameMode={setGameMode}
+            onLeave={() => { leaveLobby(); navigate('/') }}
           />
         )}
 
@@ -108,7 +109,7 @@ function JoinForm({ name, setName, onSubmit, error, clearError }) {
   )
 }
 
-function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, onReady, onStart, onSetGameMode }) {
+function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, onReady, onStart, onSetGameMode, onLeave }) {
   const currentMode = snapshot?.gameMode || 'classic'
 
   return (
@@ -181,6 +182,12 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, on
             <p>{totalConnected < 2 ? 'Waiting for more players to join...' : 'Waiting for all players to ready up...'}</p>
           </div>
         )}
+      </div>
+
+      <div className="leave-section">
+        <Button className="leave" onClick={onLeave}>
+          Leave Lobby
+        </Button>
       </div>
 
     </div>

@@ -355,3 +355,23 @@
   color: #737373;
   border: 1px solid #404040;
 }
+
+.leave-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.leave-section button {
+  background: none;
+  color: #737373;
+  border: none;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: color 0.2s;
+}
+
+.leave-section button:hover {
+  color: #ef4444;
+}
