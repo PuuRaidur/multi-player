@@ -18,7 +18,7 @@ export const GAME_CONFIG = Object.freeze({
   bonusFoodScore: 25,
   tailBiteScore: 20,
   minimumTailBiteLength: 3,
-  maxShieldCount: 1,
+  maxShieldCount: 3,
   normalFoodCount: 5,
   bonusFoodCount: 1,
   bonusFoodChance: 0.18,

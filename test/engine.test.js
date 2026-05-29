@@ -151,21 +151,23 @@ test("extra life power-up increases lives without passing max lives", () => {
   assert.equal(player.lives, testConfig.maxLives);
 });
 
-test("shield power-up blocks the next crash without losing a life", () => {
+test("shield power-up stacks up to three and blocks one crash per shield", () => {
   const game = new SnakeGame(testConfig);
   game.addPlayer("a", "Alex");
   game.addPlayer("b", "Berta");
   game.start("a");
 
   const player = game.players.get("a");
-  const head = player.snake[0];
-  game.foods = [{ id: "shield1", type: "shield", x: head.x + 1, y: head.y }];
 
-  game.tick();
+  for (let i = 1; i <= 4; i += 1) {
+    const head = player.snake[0];
+    game.foods = [{ id: `shield${i}`, type: "shield", x: head.x + 1, y: head.y }];
+    game.tick();
+  }
 
-  assert.equal(player.shieldCount, 1);
-  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").shieldCount, 1);
-  assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "shield"), true);
+  assert.equal(player.shieldCount, 3);
+  assert.equal(game.snapshot().players.find((entry) => entry.id === "a").shieldCount, 3);
+  assert.equal(game.drainEvents().filter((event) => event.type === "sound" && event.name === "shield").length, 4);
 
   player.snake = [{ x: 0, y: 0 }];
   player.direction = "left";
@@ -173,7 +175,7 @@ test("shield power-up blocks the next crash without losing a life", () => {
   game.tick();
 
   assert.equal(player.lives, testConfig.startingLives);
-  assert.equal(player.shieldCount, 0);
+  assert.equal(player.shieldCount, 2);
   assert.equal(game.drainEvents().some((event) => event.type === "sound" && event.name === "shieldBlock"), true);
 });
 
