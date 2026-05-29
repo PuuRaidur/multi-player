@@ -64,6 +64,7 @@
  * @property {boolean} lead Is player the leading player
  * @property {number} score Player score
  * @property {number} lives Amount of lives left
+ * @property {number} shieldCount Amount of shield player has
  * @property {boolean} out Is player dead
  * @property {Direction} direction Direction that the snake is facing
  * @property {boolean} invulnerable Is snake invulnerable

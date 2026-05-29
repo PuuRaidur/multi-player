@@ -94,6 +94,9 @@ export default function Board({ snapshot, tickRate = 150 }) {
                       {Array.from({ length: Math.max(3, p.lives) }).map((_, i) => (
                         <span key={i}>{i < p.lives ? '❤️' : '🖤'}</span>
                       ))}
+                      {Array.from({ length: p.shieldCount }).map((_, i) => (
+                        <span key={i + Math.max(3, p.lives)}>🛡️</span>
+                      ))}
                     </div>
                   </div>
                 </div>
