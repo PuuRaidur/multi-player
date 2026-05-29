@@ -62,9 +62,20 @@ Application will run on your public IP or domain.
 
 ## Game Rules
 
-- 2–4 players join a lobby. First joiner is **lead** (starts match, changes game mode).
+- 2–4 players join a lobby. First joiner is **lead** (changes game mode).
 - Each player starts with **3 lives**. Crashes cost 1 life; 0 lives = out.
 - Match lasts **180 seconds**. Winner is last alive, or highest score on timeout.
+
+### Lobby
+
+- All connected players (including lead) must press **Ready** before the game can start.
+- The lead starts the match — the button only enables once everyone is ready.
+
+### Death & Elimination
+
+- When a player crashes and loses all lives, they're **eliminated** and spectate the rest of the match.
+- The game **continues** for remaining players until the timer runs out or only one survives.
+- Once the match ends, **any player** can click **Play Again** to reset everyone to the lobby.
 
 ### Food & Pickups
 
@@ -112,7 +123,8 @@ Application will run on your public IP or domain.
 | `join` | `{ name }` | Join lobby |
 | `ready` | `{ ready: bool }` | Toggle ready |
 | `setGameMode` | `{ mode }` | `classic` / `tailHunt` — lead only |
-| `start` | — | Lead only |
+| `start` | — | Lead only — all connected players must be ready |
+| `newRound` | — | Any player — resets ended match to lobby |
 | `input` | `{ direction }` | `up` / `down` / `left` / `right` |
 | `pause` / `resume` / `quit` | — | Menu actions |
 | `chat` | `{ text }` | Send message |
