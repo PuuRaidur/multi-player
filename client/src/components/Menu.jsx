@@ -4,7 +4,7 @@ import { setVolume } from '../hooks/useSounds'
 import Button from './Button'
 import './Menu.css'
 
-export default function Menu({ phase, onPause, onResume, onQuit, onPlayAgain, onClose }) {
+export default function Menu({ phase, onPause, onResume, onQuit, onPlayAgain, onLeave, onClose }) {
   const { snapshot } = useGame()
   const [vol, setVol] = useState(0.3)
   const isPaused = phase === 'paused'
@@ -26,9 +26,14 @@ export default function Menu({ phase, onPause, onResume, onQuit, onPlayAgain, on
 
         <div className="menu-buttons">
           {isEnded ? (
-            <Button className="menu-btn" onClick={() => { onPlayAgain(); onClose() }}>
-              Play Again
-            </Button>
+            <>
+              <Button className="menu-btn" onClick={() => { onPlayAgain(); onClose() }}>
+                Play Again
+              </Button>
+              <Button className="menu-btn" onClick={() => { onLeave(); onClose() }}>
+                Leave
+              </Button>
+            </>
           ) : isPaused ? (
             <Button className="menu-btn resume" onClick={() => { onResume(); onClose() }}>
               Resume Game

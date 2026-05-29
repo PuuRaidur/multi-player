@@ -18,12 +18,13 @@ function formatTime(/** @type {number} */ ms) {
  * @property {Snapshot} snapshot Game state snapshot
  * @property {number?} tickRate Server tick rate in milliseconds. Defaults to 150
  * @property {() => void} onPlayAgain Callback to start a new game
+ * @property {() => void} onLeave Callback to leave the lobby
  */
 
 /**
  * @param {BoardProps} BoardProps
  */
-export default function Board({ snapshot, tickRate = 150, onPlayAgain }) {
+export default function Board({ snapshot, tickRate = 150, onPlayAgain, onLeave }) {
   /** @type {import('react').RefObject<HTMLDivElement>} */
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 400, height: 400, cellSize: 25 });
@@ -133,7 +134,7 @@ export default function Board({ snapshot, tickRate = 150, onPlayAgain }) {
                 <Snake key={player.id} player={player} grid={snapshot.grid} cellW={cellW} cellH={cellH} tickRate={tickRate} />
               )}
             </div>
-            {snapshot.phase === 'ended' && <EndScreen winner={snapshot.winner} onPlayAgain={onPlayAgain} />}
+            {snapshot.phase === 'ended' && <EndScreen winner={snapshot.winner} onPlayAgain={onPlayAgain} onLeave={onLeave} />}
           </div>
         </div>
       </div>
