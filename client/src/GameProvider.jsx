@@ -42,6 +42,7 @@ export function GameProvider({ children }) {
   const quit = useCallback(() => { socket.emit('quit') }, [])
   const sendChat = useCallback((text) => { socket.emit('chat', { text }) }, [])
   const playAgain = useCallback(() => { socket.emit('newRound') }, [])
+  const leaveLobby = useCallback(() => { socket.emit('leave') }, [])
   const clearError = useCallback(() => { setError(null) }, [])
 
   const myPlayer = snapshot?.players?.find(p => p.id === myId) || null
@@ -63,6 +64,7 @@ export function GameProvider({ children }) {
       setGameMode,
       startGame,
       playAgain,
+      leaveLobby,
       pause,
       resume,
       quit,
