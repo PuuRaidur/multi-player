@@ -158,6 +158,7 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, on
         <Button
           onClick={onReady}
           variant={myPlayer.ready ? 'yellow' : 'green'}
+          className='ready'
         >
           {myPlayer.ready ? 'Not Ready' : 'Ready'}
         </Button>
@@ -166,6 +167,7 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, on
           <Button
             onClick={onStart}
             variant="primary"
+            className='start'
           >
             Start Game
           </Button>
