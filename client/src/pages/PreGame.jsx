@@ -122,20 +122,24 @@ function Lobby({ myPlayer, snapshot, error, isLead, canStart, totalConnected, on
 
       <div className="mode-selector">
         <label>Game Mode</label>
-        <div className="mode-options">
-          <Button
-            className={currentMode === 'classic' ? 'mode-active' : ''}
-            onClick={isLead ? () => onSetGameMode('classic') : undefined}
-          >
-            Classic
-          </Button>
-          <Button
-            className={currentMode === 'tailHunt' ? 'mode-active' : ''}
-            onClick={isLead ? () => onSetGameMode('tailHunt') : undefined}
-          >
-            Tail Hunt
-          </Button>
-        </div>
+        {isLead ? (
+          <div className="mode-options">
+            <Button
+              className={currentMode === 'classic' ? 'mode-active' : ''}
+              onClick={() => onSetGameMode('classic')}
+            >
+              Classic
+            </Button>
+            <Button
+              className={currentMode === 'tailHunt' ? 'mode-active' : ''}
+              onClick={() => onSetGameMode('tailHunt')}
+            >
+              Tail Hunt
+            </Button>
+          </div>
+        ) : (
+          <p className="mode-label">{currentMode === 'tailHunt' ? 'Tail Hunt' : 'Classic'}</p>
+        )}
       </div>
 
       <section className="players-section">
