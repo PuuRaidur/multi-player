@@ -71,7 +71,7 @@ Application will run on your public IP or domain.
 ### Lobby
 
 - All connected players (including lead) must press **Ready** before the game can start.
-- The lead starts the match — the button only enables once everyone is ready.
+- The lead chooses the game mode and starts the match — the button only enables once everyone is ready.
 
 ### Death & Elimination
 
