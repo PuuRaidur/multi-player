@@ -107,7 +107,13 @@ export default function Board({ snapshot, tickRate = 150, onPlayAgain, onLeave }
 
             {snapshot.phase === 'paused' && <div className="text-2xl font-semibold uppercase">Paused by {snapshot.pausedBy.name}</div>}
 
-            <div className="flex flex-col items-end whitespace-nowrap bg-black/50 px-5 py-3 rounded-lg border border-neutral-800">
+            <div className="flex items-center gap-4">
+              <div className="bg-black/50 px-4 py-3 rounded-lg border border-neutral-800 text-center">
+                <span className="text-neutral-500 uppercase text-xs font-bold tracking-widest">Mode</span>
+                <p className="font-mono text-sm text-neutral-200 font-bold mt-0.5">{snapshot.gameMode === 'tailHunt' ? 'Tail Hunt' : 'Classic'}</p>
+              </div>
+
+              <div className="flex flex-col items-end whitespace-nowrap bg-black/50 px-5 py-3 rounded-lg border border-neutral-800">
               <span className="text-neutral-500 uppercase text-xs font-bold tracking-widest mb-1 flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${snapshot.phase === 'playing' ? 'bg-green-500 animate-pulse' : snapshot.phase === 'paused' ? 'bg-amber-400' : 'bg-neutral-500'}`} />
                 Game Timer
@@ -118,6 +124,7 @@ export default function Board({ snapshot, tickRate = 150, onPlayAgain, onLeave }
             </div>
           </div>
         </div>
+      </div>
 
         <div className="flex-1 w-full max-w-7xl  bg-neutral-950 border border-t-0 border-neutral-800 rounded-b-2xl shadow-2xl z-10 flex min-h-0 overflow-hidden">
           <div className="w-full h-full flex items-center justify-center p-4">
