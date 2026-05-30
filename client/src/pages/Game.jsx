@@ -17,11 +17,31 @@ export default function GamePage() {
   const [toasts, setToasts] = useState([])
   const [pendingLeave, setPendingLeave] = useState(false)
   const seenIds = useRef(new Set())
+  const [fps, setFps] = useState(0)
+  const frameTimes = useRef([])
 
   const myPlayer = snapshot?.players?.find(p => p.id === myId) || null
 
   useKeyboardControls()
   useSounds()
+
+  useEffect(() => {
+    let raf
+    function tick() {
+      const now = performance.now()
+      const times = frameTimes.current
+      times.push(now)
+      while (times.length > 0 && times[0] <= now - 1000) {
+        times.shift()
+      }
+      if (times.length > 1) {
+        setFps(times.length - 1)
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
 
   useEffect(() => {
     if (!snapshot || snapshot.phase === 'lobby') {
@@ -65,6 +85,7 @@ export default function GamePage() {
       <div className="game-header">
         <span className="game-title">🐍 Snake Food Battle</span>
         <div className="game-header-actions">
+          <span className="fps-counter">{fps} FPS</span>
           <Button onClick={() => setChatOpen(true)}>Chat</Button>
           <Button onClick={() => setMenuOpen(prev => !prev)}>Menu</Button>
         </div>
