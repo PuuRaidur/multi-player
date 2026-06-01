@@ -158,7 +158,7 @@ export default function Board({ snapshot, tickRate = 150, onPlayAgain, onLeave }
             </div>
 
             {/* Endgame Overlay  */}
-            {snapshot.phase === 'ended' && <EndScreen winner={snapshot.winner} onPlayAgain={onPlayAgain} onLeave={onLeave} />}
+            {snapshot.phase === 'ended' && <EndScreen winners={snapshot.winners} onPlayAgain={onPlayAgain} onLeave={onLeave} />}
 
           </div>
         </div>

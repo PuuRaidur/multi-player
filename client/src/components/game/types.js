@@ -22,7 +22,7 @@
  * @property {Player[]} players
  * @property {Food[]} foods
  * @property {string[]} messages
- * @property {Winner?} winner
+ * @property {Winner[]} winners
  */
 
 /**

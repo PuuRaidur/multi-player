@@ -24,7 +24,7 @@ export class SnakeGame {
     this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
-    this.winner = null;
+    this.winners = [];
     this.events = [];
     this.nextPlayerNumber = 1;
     this.spawnInitialFood();
@@ -170,7 +170,7 @@ export class SnakeGame {
     this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
-    this.winner = null;
+    this.winners = [];
     this.foods = [];
     this.spawnInitialFood();
 
@@ -204,7 +204,7 @@ export class SnakeGame {
     this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
-    this.winner = null;
+    this.winners = [];
     this.foods = [];
     this.spawnInitialFood();
 
@@ -608,26 +608,41 @@ export class SnakeGame {
 
     this.phase = PHASES.ended;
     this.endedAt = this.now();
-    this.winner = this.pickWinner();
-    this.addSystemMessage(`${reason} Winner: ${this.winner ? this.winner.name : "No winner"}.`);
+    this.winners = this.pickWinners();
+
+    let message;
+
+    if (!this.winners) {
+      message = "No winner...";
+    } else if (this.winners.length > 1) {
+      const winnerNames = this.winners.map(w => w.name).join(", ");
+      message = `It's a tie between ${winnerNames}!`
+    } else if (this.winners.length == 1) {
+      message = `Winner is ${this.winners[0].name}!`
+    }
+    
+    this.addSystemMessage(`${reason} ${message}`);
     this.emitEvent("sound", {
       name: "end",
-      winnerId: this.winner?.id || null,
-      winnerName: this.winner?.name || null
+      winners: this.winners.map(w => ({
+        winnerId: w.id,
+        winnerName: w.name
+      }))
     });
   }
 
-  pickWinner() {
+  pickWinners() {
     const players = [...this.players.values()];
     if (players.length === 0) {
       return null;
     }
-
-    return players.sort((a, b) => {
+    const highestScore = players.sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       if (b.lives !== a.lives) return b.lives - a.lives;
       return a.number - b.number;
-    })[0];
+    })[0].score;
+
+    return players.filter(p => p.score == highestScore);
   }
 
   addSystemMessage(text) {
@@ -682,7 +697,7 @@ export class SnakeGame {
     this.pausedBy = null;
     this.totalPausedMs = 0;
     this.endedAt = null;
-    this.winner = null;
+    this.winners = [];
     this.events = [];
     this.nextPlayerNumber = 1;
     this.spawnInitialFood();
@@ -721,13 +736,11 @@ export class SnakeGame {
       })),
       foods: this.foods,
       messages: this.messages.slice(-8),
-      winner: this.winner
-        ? {
-            id: this.winner.id,
-            name: this.winner.name,
-            score: this.winner.score
-          }
-        : null
+      winners: this.winners.map(w => ({
+        id: w.id,
+        name: w.name,
+        score: w.score
+      })),
     };
   }
 }
