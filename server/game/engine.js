@@ -113,7 +113,7 @@ export class SnakeGame {
     this.addSystemMessage(`${player.name} disconnected and is out.`);
     this.assignLeadIfNeeded();
     this.resetIfNoPlayersConnected();
-    this.finishIfOnlyOneRemaining();
+    this.finishIfNoneRemaining();
   }
 
   setReady(clientId, ready) {
@@ -274,7 +274,7 @@ export class SnakeGame {
     player.snake = [];
     this.addSystemMessage(`${player.name} quit the game.`);
     this.emitEvent("sound", { name: "quit", playerId: player.id, playerName: player.name });
-    this.finishIfOnlyOneRemaining();
+    this.finishIfNoneRemaining();
     return true;
   }
 
@@ -314,7 +314,7 @@ export class SnakeGame {
     }
 
     this.ensureFoodCounts();
-    this.finishIfOnlyOneRemaining();
+    this.finishIfNoneRemaining();
   }
 
   moveReadyPlayers() {
@@ -590,14 +590,14 @@ export class SnakeGame {
     return Math.max(0, this.config.roundDurationMs - elapsed);
   }
 
-  finishIfOnlyOneRemaining() {
+  finishIfNoneRemaining() {
     if (this.phase !== PHASES.playing && this.phase !== PHASES.paused) {
       return;
     }
 
     const alive = [...this.players.values()].filter((player) => !player.out && player.connected);
-    if (alive.length <= 1) {
-      this.endGame(alive.length === 1 ? `${alive[0].name} is the last snake standing.` : "No players remain.");
+    if (alive.length == 0) {
+      this.endGame("No players remain.");
     }
   }
 
