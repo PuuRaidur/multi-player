@@ -52,6 +52,39 @@ export class SnakeGame {
       return { ok: true };
     }
 
+    if (this.phase === PHASES.ended) {
+      this.phase = PHASES.lobby;
+      this.foods = [];
+      this.messages = [];
+      this.startedAt = null;
+      this.pausedAt = null;
+      this.pausedBy = null;
+      this.totalPausedMs = 0;
+      this.endedAt = null;
+      this.winner = null;
+      this.events = [];
+      this.nextPlayerNumber = 1;
+
+      for (const [id, p] of this.players) {
+        if (!p.connected) this.players.delete(id);
+      }
+
+      for (const p of this.players.values()) {
+        p.ready = false;
+        p.score = 0;
+        p.lives = this.config.startingLives;
+        p.shieldCount = 0;
+        p.out = false;
+        p.invulnerableUntil = 0;
+        p.moveProgress = 0;
+        this.respawnPlayer(p, true);
+      }
+
+      this.spawnInitialFood();
+      this.assignLeadIfNeeded();
+      this.addSystemMessage("A new round is starting. Get ready!");
+    }
+
     if (this.phase !== PHASES.lobby) {
       return { ok: false, error: "Match already started." };
     }
