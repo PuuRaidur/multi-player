@@ -31,6 +31,27 @@ export class SnakeGame {
   }
 
   addPlayer(clientId, rawName) {
+    const name = normalizeName(rawName);
+    if (!name) {
+      return { ok: false, error: "Name must be 2-16 characters." };
+    }
+
+    // Reconnect: find a disconnected player with the same name
+    const existing = [...this.players.entries()].find(
+      ([id, p]) => p.name === name && !p.connected
+    );
+    if (existing) {
+      const [oldId, player] = existing;
+      this.players.delete(oldId);
+      player.id = clientId;
+      player.connected = true;
+      player.out = false;
+      player.lives = Math.max(player.lives, 1);
+      this.players.set(clientId, player);
+      this.addSystemMessage(`${player.name} reconnected.`);
+      return { ok: true };
+    }
+
     if (this.phase !== PHASES.lobby) {
       return { ok: false, error: "Match already started." };
     }
@@ -39,12 +60,7 @@ export class SnakeGame {
       return { ok: false, error: "Match is full." };
     }
 
-    const name = normalizeName(rawName);
-    if (!name) {
-      return { ok: false, error: "Name must be 2-16 characters." };
-    }
-
-    if ([...this.players.values()].some((player) => player.name.toLowerCase() === name.toLowerCase())) {
+    if ([...this.players.values()].some((p) => p.name.toLowerCase() === name.toLowerCase())) {
       return { ok: false, error: "Name is already taken." };
     }
 
@@ -87,6 +103,7 @@ export class SnakeGame {
       this.players.delete(clientId);
       this.addSystemMessage(`${player.name} left the ${this.phase === PHASES.lobby ? 'lobby' : 'game'}.`);
       this.assignLeadIfNeeded();
+      this.resetIfNoPlayersConnected();
       return;
     }
 
