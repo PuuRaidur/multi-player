@@ -76,6 +76,17 @@ function playExtraLife() {
   setTimeout(() => playTone(659, 0.2, 'triangle', 0.12), 200)
 }
 
+function playShield() {
+  playTone(330, 0.12, 'sine', 0.1)
+  setTimeout(() => playTone(660, 0.14, 'sine', 0.1), 70)
+  setTimeout(() => playTone(990, 0.18, 'triangle', 0.09), 140)
+}
+
+function playShieldBlock() {
+  playTone(880, 0.08, 'square', 0.11)
+  setTimeout(() => playTone(440, 0.18, 'triangle', 0.12), 70)
+}
+
 function playPause() {
   playTone(400, 0.15, 'triangle', 0.1)
   setTimeout(() => playTone(300, 0.15, 'triangle', 0.1), 100)
@@ -100,6 +111,8 @@ const SOUND_MAP = {
   end: playEnd,
   speedBoost: playSpeedBoost,
   extraLife: playExtraLife,
+  shield: playShield,
+  shieldBlock: playShieldBlock,
   pause: playPause,
   resume: playResume,
   tailBite: playTailBite,
