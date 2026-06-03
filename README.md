@@ -31,7 +31,7 @@ npm run dev
 npm run serve
 ```
 
-- Server should be running in background on **<http://localhost:3100>** and has to be stopped manually with
+- Server should be running in background on **<http://localhost:3100>**, which also serves the client, and has to be stopped manually with
 
 ```bash
 npm run stop
@@ -148,3 +148,7 @@ System messages (player joins, quits, pause/resume) appear as **toast notificati
 | `errorMessage` | `{ message }` | Validation error |
 | `sound` | `{ name, ... }` | Cue: `start`, `food`, `crash`, `tailBite`, `end`, etc. |
 | `chat` | `{ playerId, name, text, createdAt }` | Received message |
+
+### Afterword
+
+Big thanks to my 2 teammates Magdaleena Teinemaa and Vladyslav Havrilov for doing a great job in their parts of work.
