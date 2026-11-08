@@ -2,12 +2,6 @@
 
 Real-time multiplayer snake battle for 2–4 players. Eat food, grab power-ups, dodge collisions, and hunt tails. Last snake standing (or highest scorer) wins.
 
-## Quick Start
-
-To see application demo you can visit [**dovaogedot.online**](https://dovaogedot.online) (my teammate is in control of the site, meaning the site could be updated)
-
-If you want to set it up yourself, run from the root of the repository:
-
 ### Setup dependencies
 
 Install required dependencies
